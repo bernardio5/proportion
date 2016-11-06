@@ -1,0 +1,105 @@
+<!DOCTYPE html >
+<head>
+<title>workly.com/proportion/tutorial</title>
+<link rel="stylesheet" href="../linkHelp/styles.css">
+<script type="text/javascript" src="proportion.js"></script> 
+<script type="text/javascript">
+	var frame; 
+	var theContext;  
+	var theP;  
+	
+	function animator() {
+		frame += 1; 
+		if (frame>1000) { frame = 0; }
+		
+		theP.clear();
+		
+		var p1 = theP.addGivenPoint(.5, .4); 
+		var p2 = theP.addGivenPoint(.5, .2); 
+		var c1 = theP.addCircle(p1,p2); 
+	
+		// the points to get the midpoint of!
+		var movingPt = theP.addParametricPoint(c1, frame/100); 
+		
+		// makd a spinning line; make a perpendicular to that line
+		var secondHandLine = theP.addLine(p1, movingPt); 
+		
+		// add a third point, further out on the line
+		var c2 = theP.addCircle(movingPt, p1); 
+		var outerPt = theP.addSecondIntersection(c2, secondHandLine, p1);
+		 
+		// 
+		var c3 = theP.addCircle(p1, outerPt); 
+		var c4 = theP.addCircle(outerPt, p1); 
+		var crossPt1 = theP.addFirstIntersection(c3, c4, movingPt); 
+		var crossPt2 = theP.addSecondIntersection(c3, c4, movingPt); 
+		
+		var perp = theP.addLine(crossPt1, crossPt2); 
+		theContext.beginPath(); 
+		theP.trace();
+		theContext.stroke(); 
+	}
+	
+	
+	function startAnimation() { 
+		var theCanvas = document.getElementById("sampleCanvas");
+		theContext = theCanvas.getContext("2d");
+		
+		frame = 0; 
+		theContext.strokeStyle = "#000";
+	
+		theP = new prPage(theContext, "#f0f0f0"); 
+		setInterval(animator, 50);  
+	}
+
+</script>
+
+<body  onLoad="startAnimation();">
+<div class="container">
+  <div class="header">
+   	<div class="left"> <a href="index.html"><img src="icon.jpg" alt="workly.com" /></a> 
+    	</div>
+    <div class="right">
+        Proportion tutorial: Constructing a perpendicular line. 
+        </div>
+        
+    <div class="clear"></div>
+    </div> <!-- header--> 
+      
+  <div class="subCont">
+    <div class="left">
+      <img src="../linkHelp/whtQuotes.jpg"/>
+      </div><!-- left -->
+    <div class="right">
+    	Proportion demo: construction of a perpendicular line.  
+       
+        </p></div><!-- right -->
+    <div class="clear"></div>
+    </div><!-- subCont -->
+    
+  <div class="subCont">
+    	<canvas id="sampleCanvas" width="640" height="640"></canvas> 
+
+    </div><!-- subCont -->
+    
+    <div class = "subCont">
+    	<div class="codeBox">
+       Building a perpendicular is much like finding a midpoint, 
+       except that the point that you build the line from is your starting point. <br><br>
+       
+       The smaller, unmoving circle is our start; we'll build a perpendicular from that point, 
+       on the line through that point and the center of the circle. 
+       <br>
+       <br>
+       Use a second circle to get a third point on the line. Use that outer point to define 
+       the two large circles. Their intersection points give you the perpendicular you want. <br>
+       <br>
+       Please look at the source code of this page for more information.
+
+ 	</div></div> 
+        
+    
+</div><!-- container -->
+
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html >
+<head>
+<title>workly.com/proportion/tutorial</title>
+<link rel="stylesheet" href="../linkHelp/styles.css">
+<script type="text/javascript" src="proportion.js"></script>  
+<script type="text/javascript">
+	var frame = 0; 
+	var theP;
+	var theC; 
+	
+    
+    function testcode() { 
+		var theCanvas = document.getElementById("sampleCanvas");
+		var theC = theCanvas.getContext("2d");
+	
+		theC.strokeStyle = "#000";
+	
+		// make a proportion "page" for drawing into
+		theP.clear(); 
+		
+		// add four points that define two lines that cross. 
+		var p1 = theP.addGivenPoint(.25, .25); // three pts above
+		var p2 = theP.addGivenPoint(.5, .25); 
+		var p3 = theP.addGivenPoint(.75, .25); 
+		var p4 = theP.addGivenPoint(.25, .75); // three below
+		var p5 = theP.addGivenPoint(.5, .75); 
+		var p6 = theP.addGivenPoint(.75, .75); 
+		
+	
+		// add three vertical lines
+		var ln1 = theP.addLine(p1, p4); // three lines, with p1 for each one top
+		var ln2 = theP.addLine(p2, p5); 
+		var ln3 = theP.addLine(p3, p6); 
+		
+		// add three vertical segments
+		var s1 = theP.addSegment(ln1, 0, 1); // two segments going top-to-bottom
+		var s2 = theP.addSegment(ln2, 0, 1); 
+		var s3 = theP.addSegment(ln3, 1, 0); // one going bottom to top.
+		
+		
+		// use two sets of "beginPath" and "stroke" calls to use two colors
+		theC.beginPath();
+		theC.strokeStyle = "#d77";
+		theP.trace(); // draw everything pink and faint
+		theC.stroke();
+
+		theC.fillStyle = "#77f";
+		theP.loft(s1, s2); 		
+		
+		theC.fillStyle = "#7f7";
+		theP.loft(s2, s3); 
+
+
+
+		++frame;
+		if (frame>200) { frame = 0; }
+	
+	}
+	
+	
+	function redraw() { 
+		var c_canvas = document.getElementById("sampleCanvas");
+		theC = c_canvas.getContext("2d");
+		
+		theC.fillStyle = 'white';
+		theC.strokeStyle = "#000";
+		theP = new prPage(theC,"#ffffff"); 
+		setInterval(testcode, 20); 
+	}
+
+
+
+</script>
+
+<body  onLoad="redraw();">
+<div class="container">
+  <div class="header">
+   	<div class="left"> <a href="index.html"><img src="icon.jpg" alt="workly.com" /></a> 
+    	</div>
+    <div class="right">
+        Proportion tutorial: lofting errors from parameter direction.
+        </div>
+        
+    <div class="clear"></div>
+    </div> <!-- header--> 
+       
+ <div class="subCont">
+    	<canvas id="sampleCanvas" width="640" height="640"></canvas>
+    <div class = "subCont">
+    	<div class="codeBox">
+       Here we have three lines, with one segment attached to each line. 
+       The the third segment, the one on the right, has a direction opposite the other two.<br> <br>
+       The blue rectangle is a correct loft, in which the parameter-0 points on the two segments
+       can be connected by a line that does not cross the parameter-1 points. <br><br>
+       The two green triangles are produced by the lofting of the second and third segments. 
+       Since the segments' direction do not match, you get a bow-tie pattern instead of a rectangle. 
+       <br><Br>
+       Please look at the source code of this page for more information.
+ 	</div></div> 
+        
+    
+</div><!-- container -->
+
+</body>
+</html>

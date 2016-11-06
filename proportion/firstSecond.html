@@ -1,0 +1,138 @@
+<!DOCTYPE html >
+<head>
+<title>workly.com/proportion/tutorial</title>
+<link rel="stylesheet" href="../linkHelp/styles.css">
+<script type="text/javascript" src="proportion.js"></script>  <!-- loads the library -->
+<script type="text/javascript">
+
+	// global variables; they stay the same every time we draw. 
+	var frame; // frame counter; use this to make the picture change every frame. 
+	var theContext;  // so we don't have to get it every frame
+	var theP;  // the same page is used for every frame
+	
+	// this function gets called once every 50 milliseconds (== 20 times/sec)
+	function animator() {
+		frame += 1; // add 1 to the frame counter; 
+		if (frame>200) { frame = 0; }
+		
+		theP.clear();
+		
+		// upper horizontal line, with p3 and p3a moving along it. 	
+		var p1 = theP.addGivenPoint(.2, .5); 
+		var p2 = theP.addGivenPoint(.5, .5); 
+		var ln1 = theP.addLine(p1, p2); 
+		
+		var p3 = theP.addParametricPoint(ln1, frame/100); 
+		var p4 = theP.addParametricPoint(ln1, (frame/100)-0.5); 
+		var c1 = theP.addCircle(p3, p4); 
+				
+		// vertical line
+		var p5 = theP.addGivenPoint(.5, .8); 
+		var ln2 = theP.addLine(p2, p5); 
+		var c2 = theP.addCircle(p2, p5); 
+		
+		///// get the points at which the little circle intersects the big one.
+		
+		// add the intersection point closest to p5. p5 is the lowest point; return the lower intersection
+		var p10 = theP.addFirstIntersection(c1, c2, p5); // add the point 
+		var ln3 = theP.addLine(p10, p5);
+		
+		// add the other point-- the higher one
+		var p11 = theP.addSecondIntersection(c1, c2, p5); 
+		var ln4 = theP.addLine(p11, p1);
+		
+		
+		// add the intersections with the line, too
+		var p12 = theP.addFirstIntersection(c1, ln2, p5); // add the lower
+		var ln5 = theP.addLine(p12, p3); // line through center
+		
+		// add the other point-- the higher one
+		var p13 = theP.addSecondIntersection(c1, ln2, p5); 
+		var ln6 = theP.addLine(p13, p4); // line to trailing circumference point
+			
+		
+		theContext.beginPath();
+		theP.trace();
+		theContext.stroke(); 
+	}
+	
+	
+	// this routine gets called once when the page loads. 
+	function startAnimation() { 
+		var theCanvas = document.getElementById("sampleCanvas");
+		theContext = theCanvas.getContext("2d");
+		
+		frame = 0; // set the frame counter
+		theContext.fillStyle = 'white';
+		theContext.strokeStyle = "#000";
+	
+		theP = new prPage(theContext, "#ffffff");  // make the page
+		setInterval(animator, 50);  // tell JavaScript to call the "animator" function every 50 milliseconds
+	}
+
+</script>
+
+<body  onLoad="startAnimation();">
+<div class="container">
+  <div class="header">
+   	<div class="left"> <a href="index.html"><img src="icon.jpg" alt="workly.com" /></a> 
+    	</div>
+    <div class="right">
+        Proportion tutorial: Understanding "addFirstIntersection" and "addSecondIntersection" 
+        </div>
+        
+    <div class="clear"></div>
+    </div> <!-- header--> 
+ 
+   
+  <div class="subCont">
+    	<canvas id="sampleCanvas" width="640" height="640"></canvas> <!-- hey look: the canvas! -->
+
+    </div><!-- subCont -->
+    
+    <div class = "subCont">
+    	<div class="codeBox">
+       The mechanism for adding an object to a proportion page works best if only one object is returned. 
+       The functions "addFirstIntersection" and "addSecondIntersection" always return some single thing. 
+       <br>
+       <br>
+       Both functions take three arguments: two things to intersect, and an extra point. Often, the extra point is not used at all. 
+       <br>
+       <br>
+       Two lines intersect at one point, or not at all. If the lines are parallel, "addFirst" does nothing 
+       and returns the integer 0, which is the NULL object. Nothing can touch NULL, and NULL
+        can't be used to make lines or circles-- if you try, you just get NULL again. <br>
+       <br>
+       If you intersect two lines, and they do touch, "addFirstIntersection" 
+       adds the point at which they touch, and "addSecond" returns NULL. 
+       <br>
+       <br>
+       If you intersect a line and circle, or two circles, and they don't touch, 
+       "addFirst" and "addSecond" both return NULL. 
+       <br>
+       <br>
+       If you intersect a line and circle or two circles and they touch at one point, "addFirst" returns 
+       that point, and "addSecond" returns NULL.  
+       <br>
+       <Br>
+       If you intersect line/circle or circles, and they touch at two points, then the extra point is used to select which point to return. 
+       <br>
+       <br>
+       If there are two points of intersection, "addFirst" returns the point of intersection closest to the extra point, and "addSecond" 
+       returns the point further away. 
+       <br>
+       <br>
+       If the two points are equidistant, you messed up! But "addFirst" will return the point with the lower Y coordinate. 
+       If the two points have the same Y, "addFirst" returns the one with the lower X. 
+       The the two points have the same X and Y, there's only one point, so we already took care of that. 
+              <br>
+       <br>
+       Please look at the source code of this page for more information.
+
+ 	</div></div> 
+        
+    
+</div><!-- container -->
+
+</body>
+</html>

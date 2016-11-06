@@ -1,0 +1,96 @@
+<!DOCTYPE html >
+<head>
+<title>workly.com/proportion/tutorial</title>
+<link rel="stylesheet" href="../linkHelp/styles.css">
+<script type="text/javascript" src="proportion.js"></script> 
+<script type="text/javascript">
+	var frame; 
+	var theContext;  
+	var theP;  
+	
+	function animator() {
+		frame += 1; 
+		if (frame>600) { frame = 0; }
+		
+		theP.clear();
+		
+		// upper horizontal line, with p3 and p3a moving along it. 	
+		var p1 = theP.addGivenPoint(.5, .5); 
+		var p2 = theP.addGivenPoint(.5, .2); 
+		var p3 = theP.addGivenPoint(.5, .65); 
+		 
+		
+		var c1 = theP.addCircle(p1,p2); 
+		var c2 = theP.addCircle(p1,p3); 
+		
+		// the points to get the midpoint of!
+		var p4 = theP.addParametricPoint(c1, frame/100); 
+		var p5 = theP.addParametricPoint(c2, (frame/66.6666)); 
+		
+		var ln1 = theP.addLine(p4, p5); 
+		var c3  = theP.addCircle(p4, p5); 
+		var c4  = theP.addCircle(p5, p4); 
+		
+		var p6 = theP.addFirstIntersection(c3, c4, p1); 
+		var p7 = theP.addSecondIntersection(c3, c4, p1); 
+		var ln2 = theP.addLine(p6, p7); 
+		var midpt = theP.addFirstIntersection(ln1, ln2, p1); 
+		
+		theContext.beginPath(); 
+		theP.trace();
+		theContext.stroke(); 
+	}
+	
+	
+	function startAnimation() { 
+		var theCanvas = document.getElementById("sampleCanvas");
+		theContext = theCanvas.getContext("2d");
+		
+		frame = 0; 
+		theContext.fillStyle = 'white';
+		theContext.strokeStyle = "#000";
+	
+		theP = new prPage(theContext); 
+		setInterval(animator, 50);  
+	}
+
+</script>
+
+<body  onLoad="startAnimation();">
+<div class="container">
+  <div class="header">
+   	<div class="left"> <a href="index.html"><img src="icon.jpg" alt="workly.com" /></a> 
+    	</div>
+    <div class="right">
+        Proportion tutorial: construction of a midpoint.<br>
+        </div>
+        
+    <div class="clear"></div>
+    </div> <!-- header--> 
+      
+    
+  <div class="subCont">
+    	<canvas id="sampleCanvas" width="640" height="640"></canvas> <!-- hey look: the canvas! -->
+
+    </div><!-- subCont -->
+    
+    <div class = "subCont">
+    	<div class="codeBox">
+       This just demonstrates the use of the library to do some good old geometric construction. 
+       There are two points orbiting the center; their midpoint is constructed.
+       <br>
+       <br>
+       Draw circles of equal radius centered on the points; 
+       the line connecting the circles' points of intersectiion has all points
+        equidistant from the two points. I think this works; check with Euclid if you like. 
+       <br>
+       <br>
+       Please look at the source code of this page for more information.
+
+ 	</div></div> 
+        
+    
+</div><!-- container -->
+
+</body>
+</html>
