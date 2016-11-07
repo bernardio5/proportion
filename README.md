@@ -8,11 +8,12 @@ The index.html page is the root of these pages.
 It's not yet in the usual JavaScript object style; sorry, I got a strange template. 
 I intend to change to something closer to the airBnB style. 
 
-Goals: I just like Euclid, you know? The "input/figures" directory contains some images that inspired me. 
+Goals: I just like Euclid, you know? The "input" directory contains some images that inspired me. 
 I want to be able to build geometric constructions for their own sakes. I did intend to continue until 
-fonts could be built; an outline of TBD items is in that directory. 
+fonts could be built; an outline of TBD items is in that directory. There is a feint towards making the 
+library work with Processing-- be my guest on filling that in; I'm going to be fonting. 
 
-And the "examples" directory will demonstrate constructions from different sources. 
+And the "constructions" directory will demonstrate constructions from different sources. 
 
 Neal 
 
