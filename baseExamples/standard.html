@@ -1,0 +1,71 @@
+<!DOCTYPE html >
+<head>
+<title>workly.com/proportion/tutorial</title>
+<link rel="stylesheet" href="../styles.css">
+<script type="text/javascript" src="../proportion.js"></script>
+<script type="text/javascript">
+	
+	var frame = 0; 
+	var theP;
+	var theC; 
+	
+	function animate() { 
+		var a, b; 
+		
+		theP.clear(); 
+		
+		var p1 = theP.addInitialFigure(.2, .2, .3, .4+.2*Math.sin(frame*0.1)); 
+	
+		++frame;
+	
+		// draw the figure
+		theC.beginPath(); 
+		theP.trace(); 
+		theC.stroke(); 
+	}
+	
+	
+	function setup() { 
+		var c_canvas = document.getElementById("sampleCanvas");
+		theC = c_canvas.getContext("2d");
+		
+		theC.fillStyle = 'white';
+		theC.strokeStyle = "#000";
+		theP = new prPage(theC, "#ffffff"); 
+		setInterval(animate, 20); 
+	}
+
+
+</script>
+
+<body  onLoad="setup();">
+<div class="container">
+  <div class="header">
+   	<div class="left"> <a href="index.html"><img src="../icon.jpg" alt="workly.com" /></a> 
+    	</div>
+    <div class="right">
+        Proportion tutorial: Adding the "base" figure to a page.
+        </div>
+        
+    <div class="clear"></div>
+    </div> <!-- header--> 
+  <div class="subCont">
+    	<canvas id="sampleCanvas" width="640" height="640"></canvas>
+
+    </div><!-- subCont -->
+    
+    <div class = "subCont">
+    	<div class="codeBox">
+        The "base figure" is useful for page layout. <br>
+        <br>
+        Given a page width and height, it constructs a rectangle of that size. 
+        <br>
+        <br>
+        Please look at the source code of this page for more information.
+	</div></div> 
+        
+    
+</div><!-- container -->
+
+</body>
+</html>

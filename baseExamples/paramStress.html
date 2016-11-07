@@ -1,0 +1,85 @@
+<!DOCTYPE html >
+<head>
+<title>workly.com/proportion/tutorial</title>
+<link rel="stylesheet" href="../styles.css">
+<script type="text/javascript" src="../proportion.js"></script>
+<script type="text/javascript">
+
+	function animator() {
+		frame += 1; 	
+		if (frame>200) { frame = 0; }	
+			
+		theP.clear();
+		
+		var p1 = theP.addGivenPoint(.5,.5);   
+		var p2 = theP.addGivenPoint(.5,.8);   
+		var c1 = theP.addCircle(p1,p2); 
+
+		var pp1 = theP.addParametricPoint(c1, frame/200); 
+		var pp2 = theP.addParametricPoint(c1, (frame/200)-0.1); 
+		
+		var c2 = theP.addCircle(pp1,pp2); 
+		// var pp3 = theP.addParametricPoint(c2, (frame/200)-0.1); 
+		
+		var i2 = theP.addSecondIntersection(c1, c2, pp2); 
+		var t1 = theP.closestPointParam(c2, p2); 
+		var pp3 = theP.addParametricPoint(c2, t1); 
+		var lnproof = theP.addLine(pp1, pp3); 
+	
+		// draw the figure
+		theContext.beginPath();
+		theP.trace();
+		theContext.stroke(); 
+	}
+	
+	
+	// this routine gets called once when the page loads. 
+	function startAnimation() { 
+		var theCanvas = document.getElementById("sampleCanvas");
+		theContext = theCanvas.getContext("2d");
+		
+		frame = 0; // set the frame counter
+		theContext.fillStyle = 'white';
+		theContext.strokeStyle = "#000";
+	
+		theP = new prPage(theContext, "#ffffff");  // make the page
+		setInterval(animator, 50);  // tell JavaScript to call the "animator" function every 50 milliseconds
+	}
+
+</script>
+
+<body  onLoad="startAnimation();">
+<div class="container">
+  <div class="header">
+   	<div class="left"> <a href="index.html"><img src="../icon.jpg" alt="workly.com" /></a> 
+    	</div>
+    <div class="right">
+        Proportion tutorial: Understanding the parameter values for parametric points.  
+        </div>
+        
+    <div class="clear"></div>
+    </div> <!-- header--> 
+   
+      
+  <div class="subCont">
+    	<canvas id="sampleCanvas" width="640" height="640"></canvas>
+
+    </div><!-- subCont -->
+    
+    <div class = "subCont">
+    	<div class="codeBox">
+        The animation above shows that the "addClosestPointParam" function 
+        is working pretty well. I threw in the line to be a smarty-pants: 
+        my definition of "pretty well" is those three points being in a line.  
+       <br>
+       <br>
+       
+       Please look at the source code of this page for more information.
+
+        	</div></div> 
+        
+    
+</div><!-- container -->
+
+</body>
+</html>

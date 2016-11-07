@@ -1,0 +1,129 @@
+@charset "UTF-8";
+body {
+	font: 100%/1.4 Verdana, Arial, Helvetica, sans-serif;
+	background: #f4f4f4;
+	margin: 0;
+	padding: 0;
+	color: #000;
+	
+}
+
+/* ~~ Element/tag selectors ~~ */
+ul, ol, dl { 	padding: 0;	margin: 0; }
+h1, h2, h3, h4, h5, h6, p {
+	margin-top: 0;	 
+	padding-right: 15px;
+	padding-left: 15px; 
+}
+a img {	border: none; }
+
+a:link {	color: #42413C;  	text-decoration: underline;  	}
+a:visited {	color: #6E6C64;		text-decoration: underline;		}
+a:hover, a:active, a:focus { 	text-decoration: none;			}
+
+/* frame around all items */
+.container {	
+	float: left;
+	width: 640px;	
+	margin:0px 128px 0px 128px; 
+	background: #ffffff;	
+	}
+
+/* content is a column of rows */ 
+.header, .subCont, .rowbox {
+	margin: 0px; 
+	padding: 0px; 	
+}
+
+/* lighter frame for other items 
+
+.subCont {
+   margin: 0px;
+   padding: 0px;
+  
+}
+
+.rowbox {
+   margin: 0px;
+   padding: 0px;
+  
+}
+*/
+
+.subPic {
+   margin: 0% 0% 0% 0%;
+   padding: 0px;
+   background: #f0f0f0;
+}
+/* margin args: top right bottom left */
+
+.left {
+   float: left;
+   width: 128px;
+   height: 128px;
+   margin: 0% 0% 0% 0%;
+   padding: 0%;
+   
+   color: #000000;
+}
+
+.right {
+   width: 446px;
+   height: 96px;
+   margin: 16px 32px 16px 32px;
+   float: right;
+   padding: 0%;
+   
+   color: #000000;
+}
+
+/* these are used in the prints page; allows a dowuble-row of icons */
+
+.right2 {
+	/*width: 404px;
+	height: 128px;*/
+    width: 320px;
+   height: 96px;
+   margin: 16px 32px 16px 32px;
+   float: right;
+}
+
+.left2 {
+	margin: 0% 0% 0% 0%;
+   width: 256px;
+   height: 96px;
+   float: left;
+}
+
+
+
+.clear {
+   height: 0;
+   font-size: 1px;
+   margin: 0;
+   padding: 0;
+   line-height: 0;
+   clear: both;
+}
+
+
+/* added for Proportion; allows code text blocks */
+
+.codeBox {
+	margin: 16px 32px 16px 32px;
+	font: 100%/1.4 Courier, monospace;
+	background: f0f0f0;
+	padding: 0; 
+	margin: 16px 16px 16px 16px;
+	
+	width: 100%;
+	
+}
+
+
+
+
+
+
+
+

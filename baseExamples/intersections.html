@@ -1,0 +1,80 @@
+<!DOCTYPE html >
+<head>
+<title>workly.com/proportion/tutorial</title>
+<link rel="stylesheet" href="../styles.css">
+<script type="text/javascript" src="../proportion.js"></script>  
+<script type="text/javascript">
+	
+	
+	// this routine gets called once when the page loads. 
+	function redraw() { 
+		var theCanvas = document.getElementById("sampleCanvas");
+		var theContext = theCanvas.getContext("2d");
+	
+		theContext.strokeStyle = "#000";
+	
+		// make a proportion "page" for drawing into
+		theP = new prPage(theContext, "#ffffff"); 
+		
+		// add four points that define two lines that cross. 
+		var p1 = theP.addGivenPoint(.2, .2); 
+		var p2 = theP.addGivenPoint(.4, .2); 
+		var p3 = theP.addGivenPoint(.8, .8); 
+		var p4 = theP.addGivenPoint(.8, .5); 
+	
+		// add the two lines
+		var ln1 = theP.addLine(p1, p2); 
+		var ln2 = theP.addLine(p3, p4); 
+		
+		//  add the point at which the lines cross
+		var p5 = theP.addFirstIntersection(ln1, ln2, p1);  // what is "p1" for?? Next tutorial!
+		
+		// use that point to make a circle 
+		var c1 = theP.addCircle(p5, p2); 
+
+		//  add the point at which the circle crosses the line
+		var p6 = theP.addFirstIntersection(c1, ln1, p1); // oo! There it is again. 
+		var c2 = theP.addCircle(p6, p4); 
+	
+		var p7 = theP.addFirstIntersection(c1, c2, p3); // oo! There it is again. 
+		// draw the figure
+		theContext.beginPath(); 
+		theP.trace();
+		theContext.stroke(); 
+	}
+
+
+</script>
+
+<body  onLoad="redraw();">  
+<div class="container">
+  <div class="header">
+   	<div class="left"> <a href="index.html"><img src="../icon.jpg" alt="workly.com" /></a> 
+    	</div>
+    <div class="right">
+        Proportion tutorial: Adding points with intersections
+        </div>
+        
+    <div class="clear"></div>
+    </div> <!-- header--> 
+    
+    
+  <div class="subCont">
+    	<canvas id="sampleCanvas" width="640" height="640"></canvas> 
+
+    </div><!-- subCont -->
+    
+    <div class = "subCont">
+    	<div class="codeBox">
+       Circles intersect circles and lines at 0, 1, or 2 points. "addFirstIntersection" takes two lines, two circles, or a line and a circle, 
+       and returns the intersection that is closest to a given point. 
+              <br>
+       <br>
+       Please look at the source code of this page for more information.
+ 	</div></div> 
+        
+    
+</div><!-- container -->
+
+</body>
+</html>

@@ -1,0 +1,84 @@
+Towards fonts
+
+If the font is legible, the font is correct. 
+
+
+Text is written in rows. 
+
+The rows are made of rectangles containing letters and the spaces between them.
+The letters before and after a space determine the space. 
+
+A rectangle that will contain a letter is subdivided.
+The subdivision is the same for every letter; that is part of a font's definition. 
+
+Letters are constructed from a standard set of parts; the parts are constructed using
+the font's subdivisions of the letter grid. 
+
+No letter makes use of all the subdivisions. 
+
+The fewer the subdivisions, the easier it is for the eye to detect similarities in letters. 
+This is like musical harmony. It probably makes the font more legible, because the reader
+needs to do less work to identify letters and their parts. 
+
+Too few subdivisions disrupts the reader's ability to distinguish the letters easily. 
+
+
+Different fonts use different letter parts. 
+
+
+To define a library for font construction, first define a "row" object that enables the
+easy construction of rows of rectangles. There will be a "cursor" on the row, marking the 
+place that the last letter was added to the row. 
+
+Rows are not filled in abstract; to break a row into specific parts requires a specific text. 
+
+To break up the row, you use a font object. 
+
+Row objects are broken into glyph and kern boxes. Each glyph box contains a specific letter
+in a specific font. A letter's glyphBox may depend on the preceeding and following letter. 
+The kernBox may depend on the preceeding and following letters. 
+
+Or not! you can just make all the letters the same width and set all kerns to 0 width. 
+
+Objects so far: rows, fonts, glyphBox, kernBox. 
+
+The glyphBox can be broken into standard parts; then drawing the letter in the box can be just
+filling in parts of the box. 
+
+External inputs to the fonts have, historically, been limited to "height" (implying width), 
+the angle of the vertical with the base line ("italic"), and maybe "stroke width"
+But the WHOLE POINT of this is to allow more inputs. The idea of a font "family" has been 
+driven by printing technology, and the difficulty of interface design. 
+
+So I think the gestalt of the design ends here: fonts have one set of routines that break up rows, 
+and another to break up glyphBoxes, another to convert boxes to letter forms, 
+and the specifics of these are left to the creative. 
+
+-----
+But. Much can be done at this level if one is willing to generalize and accept some arbitrary, 
+historically-accidental, but quite conventional, constraints. And choose a language!
+
+One can dispose of kernBoxes and build the kern into the glyphBox. One can look at only one letter 
+at a time. 
+
+The letters of the roman alphabets are mostly constructed from 20 parts. 
+1 glyphBox width is fine. 3-5 is common: i, a, m/A, W/#, 
+
+A
+B
+C
+D
+I
+K
+Q
+a
+b
+d
+e
+i
+l
+m
+p
+q
+z
+

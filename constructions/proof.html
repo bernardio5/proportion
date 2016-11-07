@@ -1,0 +1,116 @@
+<!DOCTYPE html >
+<head>
+<title>workly.com/proportion/tutorial</title>
+<link rel="stylesheet" href="../styles.css">
+<script type="text/javascript" src="../proportion.js"></script>
+<script type="text/javascript">
+	
+	var frame = 0; 
+	var theP;
+	var theC; 
+	
+	function testcode() { 
+		var a, b; 
+		
+		theP.clear(); 
+		
+		// given two points
+		var p1 = theP.addGivenPoint(0,0); 
+		var p2 = theP.addGivenPoint(0,1); 
+		var p3 = theP.addGivenPoint(1,1); 
+		var p4 = theP.addGivenPoint(1,0); 
+		
+		var ln1 = theP.addLine(p2,p3); 
+		
+		// randomly cut off a right triangle. 
+		var p5 = theP.addParametricPoint(ln1, frame/205); 
+		var ln2 = theP.addLine(p1, p5); 
+		
+		var t1 = theP.closestPointParam(ln2, p2); 		// lower left point
+		var p6 = theP.addParametricPoint(ln2, t1); 
+		var ln3 = theP.addLine(p2, p6); 				// lower moving line
+		
+		var t2 = theP.closestPointParam(ln3, p3); 		// second point from lower-left
+		var p7 = theP.addParametricPoint(ln3, t2); 
+		var ln4 = theP.addLine(p3, p7); 
+		
+		var p8 = theP.addParametricPoint(ln4, t2); 
+		var ln5 = theP.addLine(p4, p8); 
+		var p9 = theP.addParametricPoint(ln5, t2); 
+		
+		var s1 = theP.addSegment(ln1, 0, 1); 
+		var s2 = theP.addSegment(ln3, 0, t2); 
+		
+		var t3 = theP.closestPointParam(ln3, p6); 
+		
+		var s3 = theP.addSegment(ln3, t3, t2); 
+		var s4 = theP.addSegment(ln5, t2, t3); 
+		
+		//var t3 = theP.closestPointParam(ln5, p1); 
+		//var p9 = theP.addParametricPoint(ln5, t3); 
+		
+		// use two sets of "beginPath" and "stroke" calls to use two colors
+		theC.beginPath();
+		theC.strokeStyle = "#000";
+		theP.trace(); // draw everything pink and faint
+		theC.stroke();
+		
+		theC.fillStyle = "#88f";
+		theP.loft(s1, s2); 
+		theC.fillStyle = "#f88";
+		theP.loft(s3, s4); 
+		
+		++frame;
+		if (frame>200) { frame = 0; }
+	
+	}
+	
+	
+	function redraw() { 
+		var c_canvas = document.getElementById("sampleCanvas");
+		theC = c_canvas.getContext("2d");
+		
+		theC.fillStyle = 'white';
+		theC.strokeStyle = "#000";
+		theP = new prPage(theC,"#ffffff"); 
+		setInterval(testcode, 20); 
+	}
+
+
+
+</script>
+
+<body  onLoad="redraw();">
+<div class="container">
+  <div class="header">
+   	<div class="left"> <a href="index.html"><img src="../icon.jpg" alt="workly.com" /></a> 
+    	</div>
+    <div class="right">
+        Proportion tutorial: the ol' single-exclamation proof of the Pythagorean Theorem.
+        </div>
+        
+    <div class="clear"></div>
+    </div> <!-- header--> 
+    
+  <div class="subCont">
+    	<canvas id="sampleCanvas" width="640" height="640"></canvas>
+
+    </div><!-- subCont -->
+    
+    <div class = "subCont">
+    	<div class="codeBox">
+        "Behold!" which is short for, the outside length of the square is a, 
+        the side length of the red square is b, the area of the big square is a squared, 
+        the area of the red square is b squared, and the area of the blue triangle is
+        .5*a*h, the height of the blue triangle. Show that a*a = b*b+4*(.5*a*h), and you're done. 
+        <br>
+        <br>
+        
+       Please look at the source code of this page for more information.
+	</div></div> 
+        
+    
+</div><!-- container -->
+
+</body>
+</html>

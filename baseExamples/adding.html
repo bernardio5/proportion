@@ -1,0 +1,78 @@
+<!DOCTYPE html >
+<head>
+<title>workly.com/proportion/tutorial</title>
+<link rel="stylesheet" href="../styles.css">
+<script type="text/javascript" src="proportion.js"></script>  <!-- loads the library -->
+<script type="text/javascript">
+	
+	
+	// this routine gets called once when the page loads. 
+	function redraw() { 
+		var theCanvas = document.getElementById("sampleCanvas");
+		var theContext = theCanvas.getContext("2d");
+	
+		// set the drawing color to black
+		theContext.strokeStyle = "#000";
+	
+		// make a proportion "page" for drawing into
+		theP = new prPage(theContext, "#ffffff"); 
+		
+		// add three points; the function "addGivenPoint" returns an integer,
+		//   which you will use with other functions to refer to the points
+		var p1 = theP.addGivenPoint(.2, .2); // top-left is (0,0); this is 1/5 down and right
+		var p2 = theP.addGivenPoint(.8, .2); // to the rt of first pt
+		var p3 = theP.addGivenPoint(.2, .8);  // below the first pt
+		// The only time you can use Cartesian coordinates with Proportion 
+		//    is when you are adding points. 
+		
+		// add two lines; note that lines are specified by giving two points. 
+		var ln1 = theP.addLine(p1, p2); 
+		var ln2 = theP.addLine(p1, p3); 
+		
+		// add a circle by giving the center point and any point on the circumference. 
+		var c1 = theP.addCircle(p3, p1); 
+		
+		// draw the figure
+		theContext.beginPath();
+		theP.trace();
+		theContext.stroke(); 
+	}
+
+
+</script>
+
+<body  onLoad="redraw();">  <!-- causes the "redraw" function to be called when the page loads; "redraw" draws in the canvas -->
+<div class="container">
+  <div class="header">
+   	<div class="left"> <a href="index.html"><img src="../icon.jpg" alt="workly.com" /></a> 
+    	</div>
+    <div class="right">
+        Proportion tutorial: Making a page, adding a drawing to it, and using "trace" to see the drawing. <br>
+        </div>
+        
+    <div class="clear"></div>
+    </div> <!-- header--> 
+    
+  <div class="subCont">
+    	<canvas id="sampleCanvas" width="640" height="640"></canvas> <!-- hey look: the canvas! -->
+
+    </div><!-- subCont -->
+    
+    <div class = "subCont">
+    	<div class="codeBox">
+       To use Proportion.js, include the library, make a canvas on your page, and make your 
+       page run a JavaScript function on loading.<br>
+       <br>
+       Once you have a Proportion Page object, add points, lines, and circles to it; then 
+       call "trace" to have your figure drawn onto the canvas.
+       <br>
+       <br>
+       Please look at the source code of this page for more information.
+        	</div>
+            </div> 
+        
+    
+</div><!-- container -->
+
+</body>
+</html>

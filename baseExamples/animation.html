@@ -1,0 +1,92 @@
+<!DOCTYPE html >
+<head>
+<title>workly.com/proportion/tutorial</title>
+<link rel="stylesheet" href="../styles.css">
+<script type="text/javascript" src="../proportion.js"></script>
+<script type="text/javascript">
+	// global variables; they stay the same every time we draw. 
+	var frame; // frame counter; use this to make the picture change every frame. 
+	var theContext;  // so we don't have to get it every frame
+	var theP;  // the same page is used for every frame
+	
+	// this function gets called once every 50 milliseconds (== 20 times/sec)
+	function animator() {
+		frame += 1; // add 1 to the frame counter; 
+			
+		// start with nothing on the page each frame-- erase everything
+		theP.clear();
+		
+		// add three points
+		var p1 = theP.addGivenPoint(.2, .2);   // upper left
+		var p2 = theP.addGivenPoint(.8, .2);   // upper right
+		var p3 = theP.addGivenPoint(.2, .5);   // center left
+		
+		// add two lines and a circle
+		var ln1 = theP.addLine(p1, p2); 
+		var ln2 = theP.addLine(p1, p3); 
+		var c1 = theP.addCircle(p3, p1); 
+		
+		// use the frame counter to place a parametric point on the circle
+		var paraA = theP.addParametricPoint(c1, frame/200.0); 
+		
+		// use the parametric point as the center of a moving circle
+		var paraC = theP.addCircle(paraA, p2); 
+
+		// draw the figure
+		theContext.beginPath();
+		theP.trace();
+		theContext.stroke(); 
+	}
+	
+	
+	// this routine gets called once when the page loads. 
+	function startAnimation() { 
+		var theCanvas = document.getElementById("sampleCanvas");
+		theContext = theCanvas.getContext("2d");
+		
+		frame = 0; // set the frame counter
+		theContext.strokeStyle = "#000";
+	
+		theP = new prPage(theContext, "#ffffff");  // make the page
+		setInterval(animator, 50);  // tell JavaScript to call the "animator" function every 50 milliseconds
+	}
+
+</script>
+
+<body  onLoad="startAnimation();">
+
+<div class="container">
+  <div class="header">
+   	<div class="left"> <a href="index.html"><img src="../icon.jpg" alt="workly.com" /></a> 
+    	</div>
+    <div class="right">
+       Proportion tutorial: Using parametric points to animate.<br>
+        </div>
+        
+        
+    <div class="clear"></div>
+    </div> <!-- header--> 
+      
+    
+  <div class="subCont">
+    	<canvas id="sampleCanvas" width="640" height="640"></canvas>
+
+    </div><!-- subCont -->
+    
+    <div class = "subCont">
+    	<div class="codeBox">
+       Proportion can be used to make animations. This is mostly a JavaScript trick: 
+       set up a routine to draw, and tell JavaScript to call it over and over. Use a global variable to 
+       keep track of the frame number, and use the frame number to change what is drawn.
+              <br>
+       <br>
+       Please look at the source code of this page for more information.
+
+       
+        	</div></div> 
+        
+    
+</div><!-- container -->
+
+</body>
+</html>
