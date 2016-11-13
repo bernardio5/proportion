@@ -1,0 +1,135 @@
+<!DOCTYPE html >
+<head>
+<title>workly.com/proportion/tutorial</title>
+<link rel="stylesheet" href="../styles.css">
+<script type="text/javascript" src="../proportion.js"></script> 
+<script type="text/javascript">
+	var frame; 
+	var theContext;  
+	var theP;  
+	
+	function animator() {
+		var i; 
+		
+		frame += 1; 
+		if (frame>240) { frame = 0; }
+		
+		theP.clear();
+		
+		var center = theP.addGivenPoint(.4, .5); 
+		var p1 = theP.addGivenPoint(.6, .5); 
+		var theCircle = theP.addCircle(center, p1); 
+		var c1 = theP.addCircle(p1, center); 
+		var p2 = theP.addFirstIntersection(theCircle, c1, p1);
+		var p3 = theP.addSecondIntersection(theCircle, c1, p1);
+
+		if (frame>30) { 
+			var c2 = theP.addCircle(p2, center); 
+			var c3 = theP.addCircle(p3, center); 
+			var p4 = theP.addSecondIntersection(theCircle, c2, p1);
+			var p5 = theP.addSecondIntersection(theCircle, c3, p1);
+		}
+		
+		if (frame>60) { 
+			var c4 = theP.addCircle(p4, center); 
+			var c5 = theP.addCircle(p5, center); 
+			var p6 = theP.addSecondIntersection(theCircle, c4, p1);
+		}
+		
+		if (frame>90) { 
+			var l1 = theP.addLine(p1, p2);
+			var l2 = theP.addLine(p1, p3);
+			var l3 = theP.addLine(p1, p4);
+			var l4 = theP.addLine(p1, p5);
+			var l5 = theP.addLine(p1, p6);
+			var l6 = theP.addLine(p2, p4);
+			var l7 = theP.addLine(p4, p6);
+			var l8 = theP.addLine(p4, p5);
+			var l6 = theP.addLine(p3, p5);
+			var l7 = theP.addLine(p5, p6);
+		}
+			
+		if (frame>120) { 
+			var p7 = theP.addSecondIntersection(c2, c4, center);
+			var l9 = theP.addLine(center, p7); 
+			var p10 = theP.addFirstIntersection(theCircle, l9, p2); 
+		}
+			
+		if (frame>150) { 
+			var c10 = theP.addCircle(p10, center); 
+			var p11 = theP.addFirstIntersection(c10, theCircle, p1); 
+			var p12 = theP.addSecondIntersection(c10, theCircle, p1); 
+		}
+
+		if (frame>180) { 
+			var c11 = theP.addCircle(p11, center); 
+			var c12 = theP.addCircle(p12, center); 
+			var p13 = theP.addSecondIntersection(c11, theCircle, p10); 
+			var p14 = theP.addSecondIntersection(c12, theCircle, p10); 
+			var c13 = theP.addCircle(p13, center); 
+			var c14 = theP.addCircle(p14, center); 
+			var p15 = theP.addSecondIntersection(c13, theCircle, p10); 
+			var p16 = theP.addSecondIntersection(c14, theCircle, p10); 
+		}
+			
+		
+		theContext.beginPath(); 
+		theP.trace();
+		theContext.stroke(); 
+	}
+	
+	
+	function startAnimation() { 
+		var theCanvas = document.getElementById("sampleCanvas");
+		theContext = theCanvas.getContext("2d");
+		
+		frame = 0; 
+		theContext.strokeStyle = "#000";
+	
+		theP = new prPage(theContext, "#ffffff"); 
+		setInterval(animator, 50);  
+	}
+
+</script>
+
+<body  onLoad="startAnimation();">
+<div class="container">
+  <div class="header">
+   	<div class="left"> <a href="index.html"><img src="../icon.jpg" alt="workly.com" /></a> 
+    	</div>
+    <div class="right">
+        Proportion tutorial: triangle, hexagon, dodecagon, ...<br>
+        </div>
+        
+    <div class="clear"></div>
+    </div> <!-- header--> 
+      
+    
+  <div class="subCont">
+    	<canvas id="sampleCanvas" width="640" height="640"></canvas> <!-- hey look: the canvas! -->
+
+    </div><!-- subCont -->
+    
+    <div class = "subCont">
+    	<div class="codeBox">
+    		Just about the first thing anyone does with a compass is make triangles and hexagons. 
+<br><br>
+    		Start with a circle. Pick a point on the circle and make a circle around it of the same radius. 
+<br><br>
+			Use the points of intsrsection to add more circles of the same radius. 
+			<br><br>
+			There will be 6 points thus produced; from them, one can make trangles and hexagons inside the circle. 
+			<br><br>
+			By making a diameter that goes through a pair of secondary-circle intersections, and using the points where tha diameter cuts the original circle, one may add a second set of 6 points, and from those, make a dodecagon. 
+
+       <br>
+       <br>
+       Please look at the source code of this page for more information.
+
+ 	</div></div> 
+        
+    
+</div><!-- container -->
+
+</body>
+</html>

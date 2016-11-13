@@ -19,12 +19,6 @@
 // and if the canvas size changes, ... 
 
 
-// kinda weird to write a parser in JS; not sure. I mean, we know JS, right? 
-// defining fonts implies some kind of scripting. 
-
-// the history content has been removed; I wasn't using it. 
-
-
 
 
 // More below. Love, Neal  
