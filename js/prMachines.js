@@ -16,12 +16,6 @@
 //          The function return only the array.
 //      The names in the input array are camelCase. The outputs are CapitalizedCamelCase.
 
-
-
-var prPage = require('./prPage');
-
-
-
 function prMachines(pg) { 
 	this.pg = pg;  	// the page in which the machines will operate
 }
@@ -277,42 +271,6 @@ prMachines.prototype = {
 
 
 
-	// make a rectangle at xin,yin, of width win, ht hin
-	// NOTE: does not follow the prMachine conventions w.r.t. inputs
-	//  it just takes the position and size of a bouding box
-	addInitialFigure: function ( xin,  yin,  win,  hin) {
-		var p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, c1, c2, c3; 
-	    var c4, c5, c6, c7, c8, l1, l2, l3, l4;  
-		this.clear();
-		p1 = this.addGivenPoint(xin, yin);     		// 1: origin
-		p2 = this.addGivenPoint(xin+win, yin);   	// 2: pt at origin+(w,0)
-		p3 = this.addGivenPoint(xin+hin, yin);   	// 3: pt at origin+(h,0);
-		l1 = this.addLine(p1, p2);               	// 4: top margin
-		c1 = this.addCircle(p1, p2);             	// 5
-		c2 = this.addCircle(p1, p3);             	// 6
-		p4 = this.addSecondIntersection(c1, l1, p2);// 7
-		c3 = this.addCircle(p4, p2);             	// 8
-		c4 = this.addCircle(p2, p4);             	// 9
-		p5 = this.addSecondIntersection(c3, c4, p1);//10:
-		l2 = this.addLine(p1, p5);               	//11: left margin
-		p6 = this.addSecondIntersection(c1, l2, p4);    //12: bottom-left of square
-		p7 = this.addFirstIntersection(c2, l2, p6);    //13: bottom-left of page
-		c5 = this.addCircle(p2, p1);             	//14
-		c6 = this.addCircle(p6, p1);             	//15
-		p8 = this.addFirstIntersection(c5, c6, p5); //16: bottom-right of square
-		l3 = this.addLine(p2, p8);                	//17: right margin
-		c7 = this.addCircle(p3, p1);             	//18
-		c8 = this.addCircle(p7, p1);             	//19
-		p9 = this.addSecondIntersection(c7, c8, p1); //20:
-		l4 = this.addLine(p7, p9);                	//21: bottom margin
-		p10= this.addFirstIntersection(l4, l3, p9); //22: bottom-right of page
-	}
-
-
-	// solvers: 
-	// for a line and a point, get closest point on line, line perp and through
-	// for a circle and a point, get closest, tangents, tangent pts. 
-	// for two circles, lines tangent to both, circles touching both..
 
 
 }
