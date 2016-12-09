@@ -34,36 +34,12 @@ const PR_N = 0;  // null
 const PR_P = 1;  // point
 const PR_L = 2;  // line
 const PR_C = 3;  // circle
-const PR_T = 4;  // parameter -- a float, stored in t1
+const PR_T = 4;  // parameter -- a float, stored in t1 -- used?
 const PR_S = 5;  // segment -- part of a line
 const PR_A = 6;  // arc -- part of a circle
 
 const PR_E = 0.000000025; // the number that is basically zero
 const PR_2P = 6.28318530272959; // Math.PI * 2
-
-// reserved words for machine commands
-const PR_ERROR 		= 0; 	
-const PR_GIVEN 		= 1; 
-const PR_LINE 		= 2; 
-const PR_CIRCLE 	= 3; 
-const PR_PARA 		= 4; 
-const PR_FIRST 		= 5; 
-const PR_SECOND 	= 6; 
-const PR_CLOSEST 	= 7; 
-const PR_SEGMENT	= 8;
-const PR_ARC		= 9;
-
-const PR_OUTPUT		= 10; 	// label outputs
-const PR_INPUT 		= 11; 	//  "    inputs
-const PR_PAUSE 		= 12; 	// purely for dramatic effect
-const PR_GROUP 		= 13; 	// group assignment
-const PR_EOL 		= 14; 	// token to divide up commands
-const PR_MACHINE 	= 15; 	// first line of machine; names machine
-const PR_END 		= 16; 	// last line of machine
-// goto? if? eek. 
-const PR_CMD_COUNT 	= 17; 	// how many command are there? 
-
-
 
 
 /////////////////////////////////////////////////////////////
@@ -155,7 +131,7 @@ prBase.prototype.tr = function(context) {
             context.arc(this.x, this.y, this.r, 0.0, PR_2P);
             break;
 		case PR_T: 
-			// don't rendere parameters
+			// don't render parameters
 			break;
         case PR_S:
 			context.moveTo(this.x+(this.x2*this.t1), 
@@ -251,7 +227,6 @@ prBase.prototype.eqP = function (it) {
 }
 
 
-
 ///////////////////////////////////////////////////
 // set as point
 // there are many functions that "set (this) as X"
@@ -272,7 +247,7 @@ prBase.prototype.saL = function (xin, yin, x2in, y2in) {
 	this.x2 = x2in-this.x;
 	this.y2 = y2in-this.y;
 	this.r = Math.sqrt(this.x2*this.x2+this.y2*this.y2);
-	if (this.r<PR_E) { // if the two points are the same, make a point
+	if (this.r<PR_E) { // if the two points are the same, it's really a point
 		this.t = PR_P;
 	}
 }
@@ -309,8 +284,6 @@ prBase.prototype.saA = function (circleIn, t1in, t2in) {
 	// I want the grade-school norm of increasing angles going ccw. 
 	// The 0 angle is based on the direction stored in x2y2. 
 	// Also, JS makes (0,0) the top-left corner, with y-axis pointing down. 
-	// This coord system is fucked up. 
-	// This is the code where I unfuck. 
 	
 	// determine the 0 angle from (x2,y2)
 	var w = Math.acos(this.x2/this.r);  
@@ -335,6 +308,7 @@ prBase.prototype.saA = function (circleIn, t1in, t2in) {
 
 // there are 0, 1, or 2 intersections of points, lines, and circles.
 // points don't intersect things; use "closestPointOn" and "pointAlong"
+// (I thought about adding paraboloids... many many more cases).
 
 // "closer" takes three points, and picks one, which is the basis for designating
 // a point as "first" or "second"
@@ -353,6 +327,7 @@ prBase.prototype.saA = function (circleIn, t1in, t2in) {
 // returns 1 is they are equidistant and level and 1 is leftmost
 // returns 2 is they are equidistant and level and 2 is leftmost
 // otherwise, return 1
+
 prBase.prototype.closer = function ( ob1,  ob2,  ob3) {
 	var a, b, c, dx, dy, ac, bc; 
 	var res = 1;
@@ -897,7 +872,6 @@ function prPage(context, bgColor) {
 	// iteration through grouped objs
 	this.itC = 0; // index of last returned thing in objs[]
 	this.itG = 0; // group being iterated over
-	
 }
 
 
@@ -934,7 +908,6 @@ prPage.prototype.clear = function() {
 	this.cx.beginPath();
 	this.cx.rect(0,0, this.cxw, this.cxh);
 	this.cx.fill();
-		
 }
 
 
@@ -986,9 +959,10 @@ prPage.prototype.traceOne = function(which) {
 
 
 
+
 /////////////////////// group manipulations
 // draw all the objects in "which" group
-prPage.prototype.traceGroup = function( which) {
+prPage.prototype.traceGroup = function(which) {
 	for (var i=0; i<this.objCount; ++i) { 
 		if (this.objs[i].g == which) { 
 			this.objs[i].tr(this.cx) ;
@@ -997,7 +971,7 @@ prPage.prototype.traceGroup = function( which) {
 }
 
 
-prPage.prototype.setGroup = function( which,  val) {
+prPage.prototype.setGroup = function(which,  val) {
 	if ((which>0)&&(which<this.objCount)) {
 		this.objs[which].g = val;
 	}
@@ -1038,13 +1012,12 @@ prPage.prototype.clearGroup = function( which) {
 
 
 
-
 ///////////////////// adding prBase
-// bounds checking for objct references
+/// error checks
 prPage.prototype.isAPoint = function(ob) { 
 	var res = 0;
 	if ((0<ob)&&(ob<this.objCount)) {  // 0<ob<objCount
-		if (ob in this.objs) {  // there is an obj at objs[ob]
+		if (this.objs[ob]) {  // there is an obj at objs[ob]   // was (ob in this.objs), but that's the wrong test? 
 			if (this.objs[ob].t==PR_P) { // is a point
 				res = 1;
 			}
@@ -1052,32 +1025,81 @@ prPage.prototype.isAPoint = function(ob) {
 	}
 	return res;
 }
+prPage.prototype.isALine = function(ob) { 
+	var res = 0;
+	if ((0<ob)&&(ob<this.objCount)) {  // 0<ob<objCount
+		if (this.objs[ob]) {  // there is an obj at objs[ob]   // was (ob in this.objs), but that's the wrong test? 
+			if (this.objs[ob].t==PR_L) { // is a line
+				res = 1;
+			}
+		}
+	}
+	return res;
+}
+prPage.prototype.isACircle = function(ob) { 
+	var res = 0;
+	if ((0<ob)&&(ob<this.objCount)) {  // 0<ob<objCount
+		if (this.objs[ob]) {  // there is an obj at objs[ob]   // was (ob in this.objs), but that's the wrong test? 
+			if (this.objs[ob].t==PR_C) { // is a circle
+				res = 1;
+			}
+		}
+	}
+	return res;
+}
+prPage.prototype.isASegment= function(ob) { 
+	var res = 0;
+	if ((0<ob)&&(ob<this.objCount)) {  // 0<ob<objCount
+		if (this.objs[ob]) {  // there is an obj at objs[ob]   // was (ob in this.objs), but that's the wrong test? 
+			if (this.objs[ob].t==PR_S) { // is a segment
+				res = 1;
+			}
+		}
+	}
+	return res;
+}
+prPage.prototype.isAnArc= function(ob) { 
+	var res = 0;
+	if ((0<ob)&&(ob<this.objCount)) {  // 0<ob<objCount
+		if (this.objs[ob]) {  // there is an obj at objs[ob]   // was (ob in this.objs), but that's the wrong test? 
+			if (this.objs[ob].t==PR_A) { // is an arc
+				res = 1;
+			}
+		}
+	}
+	return res;
+}
+prPage.prototype.isAnObject= function(ob) { 
+	var res = 0;
+	if ((0<ob)&&(ob<this.objCount)) {  // 0<ob<objCount
+		if (this.objs[ob]) {  // there is an obj at objs[ob]   // was (ob in this.objs), but that's the wrong test? 
+			res = 1;
+		}
+	}
+	return res;
+}
+
 
 
 // you won't need to add NULL; it's always objs[0]
 // to add given lines, add given points, and then draw lines through them
 prPage.prototype.addGivenPoint = function(x, y) {
-    this.objs[this.objCount] = new prBase(); 
-	this.objs[this.objCount].saP(x* this.cxw, y*this.cxh); 
-    var res = this.objCount
+    var res = this.objCount; // Rudy: can't fail!
+    this.objs[res] = new prBase(); 
+	this.objs[res].saP(x* this.cxw, y*this.cxh); 
 	++this.objCount; 
 	return res;
 }
 prPage.prototype.given = prPage.prototype.addGivenPoint; 
+prPage.prototype.point = prPage.prototype.addGivenPoint; 
 
 
 // two points only.
 prPage.prototype.addLine = function(ob1, ob2) {
 	var res = this.objCount;
-	if (this.isAPoint(ob1)==0) {
-		res = 0;
-	}
-	if (this.isAPoint(ob2)==0) {
-		res = 0;
-	}
-	// can't make a line out of coincident points, but saL checks that.
-		
-	if (res==this.objCount) {
+	if (this.isAPoint(ob1)==0) { console.log("addLine: argument 1 is not a point"); res=0; }
+	if (this.isAPoint(ob2)==0) { console.log("addLine: argument 2 is not a point"); res=0; }
+	if (res===this.objCount) {
 		this.objs[res] = new prBase;
 		this.objs[res].saL(this.objs[ob1].x, this.objs[ob1].y, this.objs[ob2].x, this.objs[ob2].y);
 		++this.objCount;
@@ -1090,57 +1112,49 @@ prPage.prototype.line = prPage.prototype.addLine;
 // two points only.
 prPage.prototype.addCircle = function(ob1, ob2) {
 	var res = this.objCount;
-	if (this.isAPoint(ob1)==0) {
-		res = 0;
-	}
-	if (this.isAPoint(ob2)==0) {
-		res = 0;
-	}
+	if (this.isAPoint(ob1)==0) { console.log("addCircle: argument 1 is not a point"); res=0; }
+	if (this.isAPoint(ob2)==0) { console.log("addCircle: argument 2 is not a point"); res=0; }
 	// can't make a circle out of coincident points, but sAC checks that.
-		
-	if (res==this.objCount) {
+	if (res===this.objCount) {
 		this.objs[this.objCount] = new prBase;
 		this.objs[this.objCount].saC(this.objs[ob1].x, this.objs[ob1].y, this.objs[ob2].x, this.objs[ob2].y);
 		++this.objCount;
 	}
 	return res;
 }
+prPage.prototype.circle = prPage.prototype.addCircle; 
 
 
 // line plus p1p2
 prPage.prototype.addSegment = function(ob, t1in, t2in) {
-	var res = 0; 
-	
-	if ((0<ob)&&(ob<this.objCount)) {  // 0<ob<objCount
-		if (ob in this.objs) {  // there is an obj at objs[ob]
-			if (this.objs[ob].t==PR_L) { // is a line
-				res = this.objCount;
-				this.objs[res] = new prBase;
-				this.objs[res].saS(this.objs[ob], t1in, t2in);
-				++this.objCount;
-			}
-		}
+	var res = this.objCount; 
+	if (this.isALine(ob)==0) { console.log("addSegment: argument 1 is not a line"); res=0; }
+	if (res===this.objCount) {  // 0<ob<objCount
+		res = this.objCount;
+		this.objs[res] = new prBase;
+		this.objs[res].saS(this.objs[ob], t1in, t2in);
+		++this.objCount;
 	}
 	return res;
 }
+prPage.prototype.segment = prPage.prototype.addSegment;
 
 
 // circle plus p1p2
 prPage.prototype.addArc = function(ob, t1in, t2in) {
-	var res = 0; 
-	
-	if ((0<ob)&&(ob<this.objCount)) {  // 0<ob<objCount
-		if (ob in this.objs) {  // there is an obj at objs[ob]
-			if (this.objs[ob].t==PR_C) { // is a circle
-				res = this.objCount;
-				this.objs[res] = new prBase;
-				this.objs[res].saA(this.objs[ob], t1in, t2in);
-				++this.objCount;
-			}
-		}
+	var res = this.objCount; 
+	if (this.isACircle(ob)==0) { console.log("addArc: argument 1 is not a circle"); res=0; }
+	if (res===this.objCount) {  // 0<ob<objCount
+		res = this.objCount;
+		this.objs[res] = new prBase;
+		this.objs[res].saA(this.objs[ob], t1in, t2in);
+		++this.objCount;
 	}
 	return res;
 }
+prPage.prototype.arc = prPage.prototype.addArc;
+
+
 
 
 // intersection returns 0, 1, or 2 points.
@@ -1148,42 +1162,61 @@ prPage.prototype.addArc = function(ob, t1in, t2in) {
 // returns the point of intersection not returned by cI.
 // can also return NULL.
 prPage.prototype.addFirstIntersection = function( ob1,  ob2,  target) {
-	var res = 0;
-	this.objs[this.objCount] = new prBase;
-	this.objs[this.objCount].saFI(this.objs[ob1], this.objs[ob2], this.objs[target]);
-	if (this.objs[this.objCount].t!=PR_N) {
-		res = this.objCount;
-		++this.objCount;
+	var res = this.objCount; 
+	if (this.isAnObject(ob1)==0) { console.log("addFirstIntersection: argument 1 is not intersectable"); res=0; }
+	if (this.isAnObject(ob2)==0) { console.log("addFirstIntersection: argument 2 is not intersectable"); res=0; }
+	if (this.isAPoint(target)==0) { console.log("addFirstIntersection: argument 3 is not a point"); res=0; }
+	if (res===this.objCount) { 
+		this.objs[res] = new prBase;
+		this.objs[res].saFI(this.objs[ob1], this.objs[ob2], this.objs[target]);
+		if (this.objs[res].t===PR_N) {
+			res = 0; 
+		} else { 
+			++this.objCount;
+		}
 	}
 	// whichever is closer, add that to the figure.
 	return res;
 }
+prPage.prototype.first = prPage.prototype.addFirstIntersection;
 
 
 prPage.prototype.addSecondIntersection = function( ob1,  ob2,  target) {
-	var res = 0;
-	this.objs[this.objCount] = new prBase;
-	this.objs[this.objCount].saSI(this.objs[ob1], this.objs[ob2], this.objs[target]);
-	if (this.objs[this.objCount].t!=PR_N) {
-		res = this.objCount;
-		++this.objCount;
+	var res = this.objCount; 
+	if (this.isAnObject(ob1)==0) { console.log("addSecondIntersection: argument 1 is not intersectable"); res=0; }
+	if (this.isAnObject(ob2)==0) { console.log("addSecondIntersection: argument 2 is not intersectable"); res=0; }
+	if (this.isAPoint(target)==0) { console.log("addSecondIntersection: argument 3 is not a point"); res=0; }
+	if (res===this.objCount) { 
+		this.objs[res] = new prBase;
+		this.objs[res].saSI(this.objs[ob1], this.objs[ob2], this.objs[target]);
+		if (this.objs[res].t===PR_N) {
+			res = 0; 
+		} else { 
+			++this.objCount;
+		}
 	}
 	// whichever is closer, add that to the figure.
 	return res;
 }
+prPage.prototype.second = prPage.prototype.addSecondIntersection;
 
 
-// points on lines or circles
+// points on lines or circles-- an abuse? Euclid did not have this.
 prPage.prototype.addParametricPoint = function( obj,  t) {
-	var res = 0;
-	this.objs[this.objCount] = new prBase;
-	this.objs[this.objCount].saPm(this.objs[obj], t);
-	if (this.objs[this.objCount].t!=PR_N) {
-		res = this.objCount;
-		++this.objCount;
+	var res = this.objCount; 
+	if (this.isAnObject(obj)==0) { console.log("addParametricPoint: argument 1 is not intersectable"); res=0; }
+	if (res===this.objCount) { 
+		this.objs[res] = new prBase;
+		this.objs[res].saPm(this.objs[obj], t);
+		if (this.objs[res].t===PR_N) {
+			res = 0; 
+		} else { 
+			++this.objCount;
+		}
 	}
 	return res;
 }
+prPage.prototype.parametric = prPage.prototype.addParametricPoint;
 
 
 prPage.prototype.closestPointParam = function(obj, pt) {
