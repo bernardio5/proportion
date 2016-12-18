@@ -1,0 +1,91 @@
+<!DOCTYPE html >
+<head>
+<title>workly.com/proportion/tutorial</title>
+<link rel="stylesheet" href="../styles.css">
+<script type="text/javascript" src="../proportion.js"></script> 
+<script type="text/javascript" src="../prMachines.js"></script> 
+<script type="text/javascript">
+	var theContext, theP, theMachines, toUse;  
+	
+	function setParameters() {          
+        toUse = parseInt(document.getElementById('machineSelect').value);
+	}
+
+
+	function animator() {
+		theP.clear();
+
+		switch (toUse) {
+			case 0: theMachines.midpoint_test(); break;
+			case 1: theMachines.perpendicular_test(); break;
+			case 2: theMachines.series_test(); break;
+			case 3: theMachines.flower6_test(); break;
+			case 4: theMachines.flower4_test(); break;
+			case 5: theMachines.tangent_test(); break;
+			case 6: theMachines.bisection_test(); break;
+			default: break; 
+		}
+		
+		theContext.beginPath(); 
+		theP.trace();
+		theContext.stroke(); 
+	}
+	
+	
+	function startAnimation() { 
+		toUse = 4; 
+		var theCanvas = document.getElementById("sampleCanvas");
+		theContext = theCanvas.getContext("2d");
+		
+		theContext.fillStyle = 'white';
+		theContext.strokeStyle = "#000";
+	
+		theP = new prPage(theContext); 
+		theMachines = new prMachines(theP); 
+		setInterval(animator, 0);  
+	}
+
+</script>
+
+<body  onLoad="startAnimation();">
+<div class="container">
+  <div class="header">
+   	<div class="left"> <a href="index.html"><img src="../icon.jpg" alt="workly.com" /></a> 
+    	</div>
+    <div class="right">
+        Proportion tutorial: machines<br>
+        </div>
+        
+    <div class="clear"></div>
+    </div> <!-- header--> 
+      
+    Select machine:<select id='machineSelect'>
+            <option value='0'>midpoint</option>
+            <option value='1'>perpendicular</option>
+            <option value='2'>series</option>
+            <option value='3'>flower 6</option>
+            <option value='4'>flower 4</option>
+            <option value='5'>tangent</option>
+            <option value='6'>bisection of angle</option>
+            </select>
+    	<button onclick="setParameters();" href="javascript:;">Go</button>
+    
+  <div class="subCont">
+    	<canvas id="sampleCanvas" width="640" height="640"></canvas> <!-- hey look: the canvas! -->
+
+    </div><!-- subCont -->
+    <div class = "subCont">
+   
+    	<div class="codeBox">
+		"prMachines.js" contains functions that add commonly-used constructions.       
+		<br>
+       <br>
+       Please look at the source code of this page for more information.
+
+ 	</div></div> 
+        
+    
+</div><!-- container -->
+
+</body>
+</html>

@@ -16,10 +16,11 @@
 //          The function return only the array.
 //      The names in the input array are camelCase. The outputs are CapitalizedCamelCase.
 
+// The challenge of these objects: 1) to take input from a complex document in a simple way. 
+// 2) to return complex information in a standard way. 
 
 
-var prPage = require('./prPage');
-
+// This library extends proportion.js, and therefore does require it. 
 
 
 function prMachines(pg) { 
@@ -46,18 +47,18 @@ prMachines.prototype = {
 
 		var int1 = this.pg.addFirstIntersection(c1, c2, pAbove); 
 		var int2 = this.pg.addSecondIntersection(c1, c2, pAbove); 
-		var midline = this.pg.addLine(int1, int2);
+		var midLine = this.pg.addLine(int1, int2);
 		var conr = this.pg.addLine(p1, p2); 
 		var midpt = this.pg.addFirstIntersection(midLine, conr, pAbove);   
 
-		var result = ["MidPoint":midpt, "MidLine":midline, "Connector":conr "I1":int1, "I2":int2, "C1":c1, "C2":c2];
+		var result = {"MidPoint":midpt, "MidLine":midLine, "Connector":conr, "I1":int1, "I2":int2, "C1":c1, "C2":c2};
 		return result;
 	},
 	midpoint_test: function() { 
-		var p1 = this.pg.addPoint(0.4, 0.5);
-		var p2 = this.pg.addPoint(0.4, 0.5);
-		var p3 = this.pg.addPoint(0.4, 0.4);
-		var md = this.midpoint(["p1":p1, "p2":p2, "pAbove",p3]);
+		var p1 = this.pg.given(0.4, 0.5);
+		var p2 = this.pg.given(0.6, 0.5);
+		var p3 = this.pg.given(0.6, 0.4);
+		var md = this.midpoint({"p1":p1, "p2":p2, "pAbove":p3});
 	},
 
 
@@ -65,7 +66,7 @@ prMachines.prototype = {
 	// given p1 and p2, two points, and pAbove, a third point, returns, 
 	//    "Connector", the line through p1 and p2
 	//    "Perpendicular", the line perpendicular to Connector through p1
-	//    "C1" the circle through p1 and p2
+	//    "C1" the circle at p1 through p2
 	//    "P3" the line on Connector and C1, opposite p2
 	//    "C2" and "C3", the circles around p2 and P3, through P3 and P2
 	//    "PUp" and "PDown", the points where Perpendicular, C1, and C2 intersect, 
@@ -76,25 +77,26 @@ prMachines.prototype = {
 		var pAbove = inArray["pAbove"];
 
 		var c1 = this.pg.addCircle(p1, p2); 
-		var conr = this.pg.addLine(p1, p2);
-		var p3 = this.pg.addSecondIntersection(conr, c1, pAbove); 
-		var diag = this.midpoint(["p1":p3, "p2":p2, "pAbove":pAbove]);
+		var conector = this.pg.addLine(p1, p2);
+		var p3 = this.pg.addSecondIntersection(conector, c1, p2); 
+		var diag = this.midpoint({"p1":p3, "p2":p2, "pAbove":pAbove});
 
-		var result = ["Perpendicular":diag["MidLine"], 
+		var result = {"Perpendicular":diag["MidLine"], 
 						  "Connector":diag["Connector"],
 						  		"P3":p3,
 						   	    "PUp":diag["I1"],   
 						   	    "PDown":diag["I2"],   
 						   	    "C1":c1,   
 						   	    "C2":diag["C1"],   
-						   	    "C3":diag["C2"]];
+						   	    "C3":diag["C2"]
+						   	};
 		return result;
 	},
 	perpendicular_test: function() { 
-		var p1 = this.pg.addPoint(0.4, 0.5);
-		var p2 = this.pg.addPoint(0.4, 0.5);
-		var p3 = this.pg.addPoint(0.4, 0.4);
-		var md = this.perpendicular(["p1":p1, "p2":p2, "pAbove",p3]);
+		var p1 = this.pg.given(0.4, 0.5);
+		var p2 = this.pg.given(0.6, 0.5);
+		var p3 = this.pg.given(0.6, 0.4);
+		var md = this.perpendicular({"p1":p1, "p2":p2, "pAbove":p3});
 	},
 
 
@@ -116,24 +118,26 @@ prMachines.prototype = {
 		var Ci, Pi, Pim, Pip, Cname, Pname; 
 		Pim = p1; // p(i-1)
 		Pi = p2; // pi
-		var result = ["P1":p1, "C1":c1]; 
+		var result = {"P1":p1, "C1":c1}; 
 		for (i=2; i<(n+1); i=i+1) { 
 			Cname = "C" + i; 
 			Pname = "P" + i; 
-			Ci = this.pg.AddCircle(Pi, Pim);
-			Pip = this.pg.AddSecondIntersection(t, Ci, Pim);  // p(i+1)=Pip
-			result.add(Pname:Pi);
-			result.add(Cname:Ci);
+			Ci = this.pg.addCircle(Pi, Pim);
+			Pip = this.pg.addSecondIntersection(t, Ci, Pim);  // p(i+1)=Pip
+			result[Pname] = Pi;
+			result[Cname] = Ci;
 			Pim = Pi; 
 			Pi = Pip; 
 		}
 		return result;
 	},
 	series_test: function() { 
-		var p1 = this.pg.addPoint(0.4, 0.5);
-		var p2 = this.pg.addPoint(0.4, 0.5);
+		var p1 = this.pg.given(0.25, 0.5);
+		var p2 = this.pg.given(0.55, 0.5);
 		var l1 = this.pg.addLine(p1, p2);
-		var md = this.series(5, ["p1":p1, "p2":p2, "t":,l1]);
+		var md = this.series(10, {"p1":p1, "p2":p2, "t":l1});
+		var c1 = this.pg.addCircle(p1, p2);
+		var md = this.series(10, {"p1":p1, "p2":p2, "t":c1});
 	},
 
 
@@ -164,21 +168,21 @@ prMachines.prototype = {
 
 		var c4 = this.pg.addCircle(p4, p2); 
 		var c8 = this.pg.addCircle(p8, p10); 
-		var p6 = this.pg.addSecondIntersection(c0, c4, p2);
-		var c6 = this.pg.addCircle(c6, p4);
+		var p6 = this.pg.addSecondIntersection(c4, c8, p0);
+		var c6 = this.pg.addCircle(p6, p4);
 
-		var result = [
+		var result = {
 				"p2":p2, "c2":c2,  "p4":p4, "c4":c4,  "p6":p6, "c6":c6, 
 				"p8":p8, "c8":c8,  "p10":p10, "c10":c10,  "p12":p12, "c12":c12, 
 				"c0":c0 
-			];
+			};
 		return result;
 	},
 	flower6_test: function() { 
-		var p1 = this.pg.addPoint(0.4, 0.5);
-		var p2 = this.pg.addPoint(0.6, 0.5);
-		var p3 = this.pg.addPoint(0.6, 0.3);
-		var md = this.flower6(["p1":p1, "p2":p2, "pAbove":p3]);
+		var p1 = this.pg.given(0.5, 0.5);
+		var p2 = this.pg.given(0.5, 0.2);
+		var p3 = this.pg.given(0.6, 0.2);
+		var md = this.flower6({"p1":p1, "p2":p2, "pAbove":p3});
 	},
 
 
@@ -191,31 +195,35 @@ prMachines.prototype = {
 
 		var c0 = this.pg.addCircle(p0, p12); 
 		var c12 = this.pg.addCircle(p12, p0); 
-		var p2 = this.pg.addFirstIntersection(c0, c12, pAbove);
-		var p10 = this.pg.addSecondIntersection(c0, c12, pAbove);
+		var l1 = this.pg.addLine(p0,p12); 
+		var p6 = this.pg.addSecondIntersection(c0,l1, p0); 
 
-		var c2 = this.pg.addCircle(p2, p12); 
-		var c10 = this.pg.addCircle(p10, p12); 
-		var p4 = this.pg.addSecondIntersection(c0, c2, p12);
-		var p8 = this.pg.addSecondIntersection(c0, c10, p12);
+		var c6cr = this.pg.addCircle(p6, p12); 
+		var c12cr = this.pg.addCircle(p12, p6);
+		var p3cr = this.pg.addFirstIntersection(c6cr, c12cr, pAbove); 
+		var p9cr = this.pg.addSecondIntersection(c6cr, c12cr, pAbove); 
+		var crossLine = this.pg.addLine(p3cr, p9cr); 
 
-		var c4 = this.pg.addCircle(p4, p2); 
-		var c8 = this.pg.addCircle(p8, p10); 
-		var p6 = this.pg.addSecondIntersection(c0, c4, p2);
-		var c6 = this.pg.addCircle(c6, p4);
 
-		var result = [
-				"p2":p2, "c2":c2,  "p4":p4, "c4":c4,  "p6":p6, "c6":c6, 
-				"p8":p8, "c8":c8,  "p10":p10, "c10":c10,  "p12":p12, "c12":c12, 
-				"c0":c0 
-			];
+		var p3 = this.pg.addFirstIntersection(c0, crossLine, pAbove); 
+		var p9 = this.pg.addSecondIntersection(c0, crossLine, pAbove); 
+
+		c12 = this.pg.addCircle(p12, p3); 
+		c3 = this.pg.addCircle(p3, p6); 
+		c6 = this.pg.addCircle(p6, p9); 
+		c9 = this.pg.addCircle(p9,p12); 
+		// yeah, this is kind of an eyeball; don't think so. 
+		var result = {
+				"p3":p3, "p6":p6, "p9":p9, "p12":p12, 
+				"c3":c3, "c6":c6, "p9":p9, "c12":c12
+			};
 		return result;
 	},
 	flower4_test: function() { 
-		var p1 = this.pg.addPoint(0.4, 0.5);
-		var p2 = this.pg.addPoint(0.6, 0.5);
-		var p3 = this.pg.addPoint(0.6, 0.3);
-		var md = this.flower6(["p1":p1, "p2":p2, "pAbove":p3]);
+		var p1 = this.pg.given(0.5, 0.5);
+		var p2 = this.pg.given(0.5, 0.2);
+		var p3 = this.pg.given(0.6, 0.2);
+		var md = this.flower4({"p1":p1, "p2":p2, "pAbove":p3});
 	},
 
 	// flower3, 4, 5, 7? 8, 9? 10, 11?, 12, 20, 40, 60, etc? 
@@ -246,15 +254,15 @@ prMachines.prototype = {
 		var pt2 = this.pg.addSecondIntersection(c1, c2, pAbove);
 		var l1 = this.pg.addLine(p3,pt1);
 		var l2 = this.pg.addLine(p3,pt2);
-		var result = ["L1":l1, "L2":l2, "PT1":pt1, "PT2":pt2]; 
+		var result = {"L1":l1, "L2":l2, "PT1":pt1, "PT2":pt2}; 
 		return result;
 	},
 	tangents_test: function() { 
-		var p1 = this.pg.addPoint(0.4, 0.5);
-		var p2 = this.pg.addPoint(0.5, 0.5);
-		var p3 = this.pg.addPoint(0.7, 0.5);
-		var pAbove = this.pg.addPoint(0.5, 0.1);
-		var md = this.tangents(["p1":p1, "p2":p2, "p3":,p3, "pAbove":pAbove]);
+		var p1 = this.pg.given(0.4, 0.5);
+		var p2 = this.pg.given(0.5, 0.5);
+		var p3 = this.pg.given(0.7, 0.5);
+		var pAbove = this.pg.given(0.5, 0.1);
+		var md = this.tangents({"p1":p1, "p2":p2, "p3":p3, "pAbove":pAbove});
 	},
 
 
@@ -263,15 +271,15 @@ prMachines.prototype = {
 	// return a line "Bisector", through points p2 and P4, that 
 	// bisects p1p2p3.
 	angleBisection: function(inArray) {
-		var midpoint = this.midpoint(["p1":inArray["p2"], "p2":inArray["p3"], "pAbove":inArray["p1"]]);
-		var result = ["Bisector":midpoint["MidLine"], "MidPoint":midpoint["MidPoint"]]; 
+		var midpoint = this.midpoint({"p1":inArray["p2"], "p2":inArray["p3"], "pAbove":inArray["p1"]});
+		var result = {"Bisector":midpoint["MidLine"], "MidPoint":midpoint["MidPoint"]}; 
 		return result;
 	},
 	tangents_test: function() { 
-		var p1 = this.pg.addPoint(0.4, 0.5);
-		var p2 = this.pg.addPoint(0.6, 0.5);
-		var p3 = this.pg.addPoint(0.4, 0.4);
-		var md = this.angleBisection(["p1":p1, "p2":p2, "p3":,p3]);
+		var p1 = this.pg.given(0.4, 0.5);
+		var p2 = this.pg.given(0.6, 0.5);
+		var p3 = this.pg.given(0.4, 0.4);
+		var md = this.angleBisection({"p1":p1, "p2":p2, "p3":p3});
 	},
 
 
