@@ -187,7 +187,7 @@ prMachines.prototype = {
 
 
 
-
+	// this is incorrect; gives two ("vescia?"); not using center 
 	flower4: function(inArray) {
 		var p0 = inArray["p1"];
 		var p12 = inArray["p2"];
@@ -247,9 +247,10 @@ prMachines.prototype = {
 		var p3 = inArray["p3"];
 		var pAbove = inArray["pAbove"];
 
-		var c1 = this.pg.addCircle(p1,p2);
-		var mids = this.midpoint(p1, p3);
-		var c2 = mids["C1"]; // circle at p1 through p3
+		var mids = this.midpoint({"p1":p1, "p2":p3, "pAbove":pAbove});
+		var midPt = mids["MidPoint"];
+		var c1 = this.pg.circle(p1,p2);
+		var c2 = this.pg.circle(midPt, p1); // circle at p1 through p3
 		var pt1 = this.pg.addFirstIntersection(c1, c2, pAbove);
 		var pt2 = this.pg.addSecondIntersection(c1, c2, pAbove);
 		var l1 = this.pg.addLine(p3,pt1);
@@ -267,21 +268,43 @@ prMachines.prototype = {
 
 
 	// given points p1,p2,and p3, defining an angle p1,p2,p3, 
-	// (p2 being at the intersection of thelines p1-p2 and p2-p3),
+	// (p2 being the intersection of thelines p1-p2 and p2-p3),
 	// return a line "Bisector", through points p2 and P4, that 
 	// bisects p1p2p3.
 	angleBisection: function(inArray) {
-		var midpoint = this.midpoint({"p1":inArray["p2"], "p2":inArray["p3"], "pAbove":inArray["p1"]});
+		var p1 = inArray["p1"];
+		var p2 = inArray["p2"];
+		var p3 = inArray["p3"];
+		var pAbove = inArray["pAbove"];
+
+		var ln1 = this.pg.line(p2, p1);
+		var ln3 = this.pg.line(p2, p3);
+
+		var c1 = this.pg.circle(p2, p1); 
+		var eqp3 = this.pg.first(c1, ln3, p3);
+
+		var midpoint = this.midpoint({"p1":p1, "p2":eqp3, "pAbove":pAbove});
 		var result = {"Bisector":midpoint["MidLine"], "MidPoint":midpoint["MidPoint"]}; 
 		return result;
 	},
-	tangents_test: function() { 
-		var p1 = this.pg.given(0.4, 0.5);
-		var p2 = this.pg.given(0.6, 0.5);
-		var p3 = this.pg.given(0.4, 0.4);
-		var md = this.angleBisection({"p1":p1, "p2":p2, "p3":p3});
+	angleBisection_test: function() { 
+		var p1 = this.pg.given(0.6, 0.3);
+		var p2 = this.pg.given(0.4, 0.5);
+		var p3 = this.pg.given(0.7, 0.7);
+		var pAbove = this.pg.given(0.9,0.1);
+		var md = this.angleBisection({"p1":p1, "p2":p2, "p3":p3, "pAbove":pAbove});
 	},
 
+
+
+	// given two points defining a circle, build a n-gon within the circle (for n=3,4,5,6,7,8,9)
+	// given two points, build an n-gon that has a side given by the points
+	// given an n-gon, draw a circle inside/outside, return the ith side, 
+	// given two points, give an ordered set of rectilinear grid points
+	// given three points, give an ordered set of non-rectilinear grid points
+	// given an ordered set of grid points, return the m,nth set of three 
+	// given an n-gon, return the union/intersection? eeesh
+	// given an n-gon, return the union/intersection? and fill it in!
 
 
 

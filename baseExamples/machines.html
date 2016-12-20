@@ -20,9 +20,8 @@
 			case 1: theMachines.perpendicular_test(); break;
 			case 2: theMachines.series_test(); break;
 			case 3: theMachines.flower6_test(); break;
-			case 4: theMachines.flower4_test(); break;
-			case 5: theMachines.tangent_test(); break;
-			case 6: theMachines.bisection_test(); break;
+			case 4: theMachines.tangents_test(); break;
+			case 5: theMachines.angleBisection_test(); break;
 			default: break; 
 		}
 		
@@ -33,7 +32,7 @@
 	
 	
 	function startAnimation() { 
-		toUse = 4; 
+		toUse = 0; 
 		var theCanvas = document.getElementById("sampleCanvas");
 		theContext = theCanvas.getContext("2d");
 		
@@ -64,9 +63,8 @@
             <option value='1'>perpendicular</option>
             <option value='2'>series</option>
             <option value='3'>flower 6</option>
-            <option value='4'>flower 4</option>
-            <option value='5'>tangent</option>
-            <option value='6'>bisection of angle</option>
+            <option value='4'>tangents to a circle from a point</option>
+            <option value='5'>bisection of angle</option>
             </select>
     	<button onclick="setParameters();" href="javascript:;">Go</button>
     
