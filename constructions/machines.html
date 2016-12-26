@@ -1,6 +1,6 @@
 <!DOCTYPE html >
 <head>
-<title>workly.com/proportion/tests</title>
+<title>workly.com/proportion/tutorial</title>
 <link rel="stylesheet" href="../styles.css">
 <script type="text/javascript" src="../proportion.js"></script> 
 <script type="text/javascript" src="../prMachines.js"></script> 
@@ -13,33 +13,34 @@
 
 
 	function animator() {
+		t = t+0.005;
 		theP.clear();
 
 		switch (toUse) {
-			case 0: theMachines.midpoint_test(); break;
-			case 1: theMachines.perpendicular_test(); break;
-			case 2: theMachines.series_test(); break;
-			case 3: theMachines.tangents_test(); break;
-			case 4: theMachines.angleBisection_test(); break;
+			case 0: theMachines.midpoint_test(t); break;
+			case 1: theMachines.perpendicular_test(t); break;
+			case 2: theMachines.series_test(t); break;
+			case 3: theMachines.tangents_test(t); break;
+			case 4: theMachines.angleBisection_test(t); break;
 
-			case 5: theMachines.squareInCircle_test(); break;
-			case 6: theMachines.squareOnLine_test(); break;
-			case 7: theMachines.squareAcrossLine_test(); break;
+			case 5: theMachines.squareInCircle_test(t); break;
+			case 6: theMachines.squareOnLine_test(t); break;
+			case 7: theMachines.squareAcrossLine_test(t); break;
 
-			case 18: theMachines.completeParallelogram_test(); break;
+			case 18: theMachines.completeParallelogram_test(t); break;
 
-			case 8: theMachines.pentagonInCircle_test(); break;
-			case 9: theMachines.pentagonOnLine_test(); break;
-			case 10: theMachines.pentagonAcrossLine_test(); break;
+			case 8: theMachines.pentagonInCircle_test(t); break;
+			case 9: theMachines.pentagonOnLine_test(t); break;
+			case 10: theMachines.pentagonAcrossLine_test(t); break;
 
-			case 11: theMachines.hexagonInCircle_test(); break;
-			case 12: theMachines.hexagonOnLine_test(); break;
-			case 13: theMachines.hexagonAcrossLine_test(); break;			
-			case 14: theMachines.hexagonAcrossLineII_test(); break;
+			case 11: theMachines.hexagonInCircle_test(t); break;
+			case 12: theMachines.hexagonOnLine_test(t); break;
+			case 13: theMachines.hexagonAcrossLine_test(t); break;			
+			case 14: theMachines.hexagonAcrossLineII_test(t); break;
 			
-			case 15: theMachines.gridFromTwoPoints_test(); break;
-			case 16: theMachines.gridFromThreePoints_test(); break;
-			case 17: theMachines.doubler_test(); break;
+			case 15: theMachines.gridFromTwoPoints_test(t); break;
+			case 16: theMachines.gridFromThreePoints_test(t); break;
+			case 17: theMachines.doubler_test(t); break;
 			
 			default: break; 
 		}
@@ -51,7 +52,8 @@
 	
 	
 	function startAnimation() { 
-		toUse = 16; 
+		t = 0.0;
+		toUse = 5; 
 		var theCanvas = document.getElementById("sampleCanvas");
 		theContext = theCanvas.getContext("2d");
 		
@@ -60,7 +62,7 @@
 	
 		theP = new prPage(theContext); 
 		theMachines = new prMachines(theP); 
-		setInterval(animator, 1000);  
+		setInterval(animator, 50);  
 	}
 
 </script>
@@ -71,13 +73,13 @@
    	<div class="left"> <a href="index.html"><img src="../icon.jpg" alt="workly.com" /></a> 
     	</div>
     <div class="right">
-        Proportion tests: machines<br>
+        Proportion tutorial: machines<br>
         </div>
         
     <div class="clear"></div>
     </div> <!-- header--> 
       
-    Select machine:<select id='machineSelect'>
+    Select machine:<select id='machineSelect' onchange="setParameters()">
             <option value='0'>midpoint</option>
             <option value='1'>perpendicular</option>
             <option value='2'>series</option>
@@ -104,7 +106,7 @@
             <option value='17'>polygon doubler</option>
 
             </select>
-    	<button onclick="setParameters();" href="javascript:;">Go</button>
+    	<!--<button onclick="setParameters();" href="javascript:;">Go</button> -->
     
   <div class="subCont">
     	<canvas id="sampleCanvas" width="640" height="640"></canvas> <!-- hey look: the canvas! -->
