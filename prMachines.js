@@ -270,7 +270,7 @@ prMachines.prototype = {
 		var c0 = this.pg.circle(p0, p12); 
 		var c12 = this.pg.circle(p12, p0); // naming after hours on clock face
 		var l1 = this.pg.line(p0,p12); 
-		var p6 = this.pg.second(c0,l1, p0); 
+		var p6 = this.pg.second(c0,l1, p12); 
 		var c6cr = this.pg.circle(p6, p12); 
 		var c12cr = this.pg.circle(p12, p6);
 		var p3cr = this.pg.first(c6cr, c12cr, pAbove); 
@@ -326,11 +326,20 @@ prMachines.prototype = {
 		};
 		return result;
 	},
-	squareOnLine_test: function() { 
-		var p1 = this.pg.given(0.333, 0.6);
-		var p2 = this.pg.given(0.333, 0.4);
-		var p3 = this.pg.given(0.666, 0.4);
-		var md = this.squareOnLine(p1, p2, p3); 
+	squareOnLine_test: function() { 		
+		var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.4); 
+		var p2 = this.pg.given(0.5,0.3); 
+		var p3 = this.pg.given(0.5,0.1);
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
+
+		var pA = theP.addParametricPoint(c1, t); 
+		var pB = theP.addParametricPoint(c2, t*1.1); 
+		var pC = theP.addParametricPoint(c3, t*.9+.5); 
+
+		var md = this.squareOnLine(pA, pB, pC); 
 	},
 
 
@@ -345,15 +354,24 @@ prMachines.prototype = {
 		var p4 = this.pg.second(cMid,lnmid, pAbove); 
 		var result = {
 			"P1":p1, "P2":p2, "P3":p3, "P4":p4,
-			"L13":mids["Connector"], "LN24":lnmind, "C1":mids["C1"], "C2":mids["C2"]
+			"L13":mids["Connector"], "LN24":lnmid, "C1":mids["C1"], "C2":mids["C2"]
 		};
 		return result;
 	},
 	squareAcrossLine_test: function() { 
-		var p1 = this.pg.given(0.5, 0.5);
-		var p2 = this.pg.given(0.5, 0.2);
-		var p3 = this.pg.given(0.6, 0.2);
-		var md = this.squareAcrossLine(p1, p2, p3); 
+		var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.4); 
+		var p2 = this.pg.given(0.5,0.3); 
+		var p3 = this.pg.given(0.5,0.1);
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
+
+		var pA = theP.addParametricPoint(c1, t); 
+		var pB = theP.addParametricPoint(c2, t*1.1); 
+		var pC = theP.addParametricPoint(c3, t*.9+.5); 
+
+		var md = this.squareAcrossLine(pA, pB, pC); 
 	},
 
 
@@ -377,11 +395,22 @@ prMachines.prototype = {
 		return res; 
 	},
 	completeParallelogram_test: function() { 
-		var p0 = this.pg.given(0.1,0.1);
-		var p1 = this.pg.given(0.3, 0.2);
-		var p2 = this.pg.given(0.3, 0.3);
-		var p3 = this.pg.given(0.2, 0.3);
-		var md = this.completeParallelogram(p1, p2, p3); 
+		var p0 = this.pg.given(0.4,0.5); 
+		var p1 = this.pg.given(0.4,0.3); 
+		var p2 = this.pg.given(0.5,0.5); 
+		var p3 = this.pg.given(0.5,0.3); 
+		var p4 = this.pg.given(0.6,0.5); 
+		var p5 = this.pg.given(0.6,0.3);
+
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p2,p3); 
+		var c3 = this.pg.circle(p4,p5); 
+
+		var pA = theP.addParametricPoint(c1, t); 
+		var pB = theP.addParametricPoint(c2, t*1.1); 
+		var pC = theP.addParametricPoint(c3, t*.9+.5); 
+
+		var md = this.completeParallelogram(pA, pB, pC); 
 	},
 
 
@@ -395,7 +424,7 @@ prMachines.prototype = {
 	pentagonInCircle: function(p0, p360, pAbove) {
 		var c0 = this.pg.circle(p0, p360); 
 		var ln360 = this.pg.line(p0, p360);
-		var p180 = this.pg.second(c0, ln360, pAbove);
+		var p180 = this.pg.second(c0, ln360, p360);
 
 		var c360_2 = this.pg.circle(p360, p180); 
 		var c180_2 = this.pg.circle(p180, p360); 
@@ -427,10 +456,18 @@ prMachines.prototype = {
 
 	},
 	pentagonInCircle_test: function() { 
-		var p1 = this.pg.given(0.6, 0.5);
-		var p2 = this.pg.given(0.43, 0.43);
-		var pAbove = this.pg.given(0.5, 0.1);
-		var md = this.pentagonInCircle(p1,p2, pAbove);
+		var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.4); 
+		var p2 = this.pg.given(0.5,0.3); 
+		var p3 = this.pg.given(0.5,0.1);
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
+
+		var pA = theP.addParametricPoint(c1, t); 
+		var pB = theP.addParametricPoint(c2, t*1.1); 
+		var pC = theP.addParametricPoint(c3, t*.9+.5); 
+		var md = this.pentagonInCircle(pA,pB, pC);
 	},
 
 	
@@ -481,10 +518,19 @@ prMachines.prototype = {
 		return res; 
 	},
 	pentagonOnLine_test: function() { 
-		var p1 = this.pg.given(0.333, 0.6);
-		var p2 = this.pg.given(0.333, 0.4);
-		var p3 = this.pg.given(0.666, 0.4);
-		var md = this.pentagonOnLine(p1, p2, p3); 
+		var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.4); 
+		var p2 = this.pg.given(0.5,0.3); 
+		var p3 = this.pg.given(0.5,0.1);
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
+
+		var pA = theP.addParametricPoint(c1, t); 
+		var pB = theP.addParametricPoint(c2, t*1.1); 
+		var pC = theP.addParametricPoint(c3, t*.9+.5); 
+
+		var md = this.pentagonOnLine(pA, pB, pC); 
 	},
 
 	// pentagon across line
