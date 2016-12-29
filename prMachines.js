@@ -63,9 +63,9 @@ prMachines.prototype = {
 		var c2 = this.pg.circle(p0,p2); 
 		var c3 = this.pg.circle(p0,p3); 
 
-		var pA = theP.addParametricPoint(c1, t); 
-		var pB = theP.addParametricPoint(c2, t*1.1); 
-		var pC = theP.addParametricPoint(c3, t*.9); 
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9); 
 		var md = this.midpoint(pA, pB, pC);
 	},
 
@@ -105,9 +105,9 @@ prMachines.prototype = {
 		var c2 = this.pg.circle(p0,p2); 
 		var c3 = this.pg.circle(p0,p3); 
 
-		var pA = theP.addParametricPoint(c1, t); 
-		var pB = theP.addParametricPoint(c2, t*1.1); 
-		var pC = theP.addParametricPoint(c3, t*.9); 
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9); 
 		var md = this.perpendicular(pA,pB, pC);
 	},
 
@@ -146,8 +146,8 @@ prMachines.prototype = {
 		var c2 = this.pg.circle(p0,p2); 
 		var c3 = this.pg.circle(p0,p3); 
 
-		var pB = theP.addParametricPoint(c2, t*1.1); 
-		var pC = theP.addParametricPoint(c3, t*.9); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9); 
 
 		var l1 = this.pg.line(pC, pB);
 		var md = this.series(10, pC, pB, l1);
@@ -182,9 +182,9 @@ prMachines.prototype = {
 		var c2 = this.pg.circle(p0,p2); 
 		var c3 = this.pg.circle(p0,p3); 
 
-		var pA = theP.addParametricPoint(c1, t); 
-		var pB = theP.addParametricPoint(c2, t*1.1); 
-		var pC = theP.addParametricPoint(c3, t*.9+.5); 
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
 		var md = this.tangents(pA,pB,pC, pAbove);
 	},
 
@@ -214,9 +214,9 @@ prMachines.prototype = {
 		var c2 = this.pg.circle(p0,p2); 
 		var c3 = this.pg.circle(p0,p3); 
 
-		var pA = theP.addParametricPoint(c1, t); 
-		var pB = theP.addParametricPoint(c2, t*1.1); 
-		var pC = theP.addParametricPoint(c3, t*.9+.5); 
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
 		var md = this.angleBisection(pA,pB,pC,pAbove);
 	},
 
@@ -243,9 +243,9 @@ prMachines.prototype = {
 		var c2 = this.pg.circle(p0,p2); 
 		var c3 = this.pg.circle(p0,p3); 
 
-		var pA = theP.addParametricPoint(c1, t); 
-		var pB = theP.addParametricPoint(c2, t*1.1); 
-		var pC = theP.addParametricPoint(c3, t*.9+.5); 
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
 
 		var md = this.midpoint(pA, pB, pC);
 	},
@@ -284,7 +284,7 @@ prMachines.prototype = {
 			};
 		return result;
 	},
-	squareInCircle_test: function() { 
+	squareInCircle_test: function(t) { 
 		var p0 = this.pg.given(0.5,0.5); 
 		var p1 = this.pg.given(0.5,0.4); 
 		var p2 = this.pg.given(0.5,0.3); 
@@ -293,9 +293,9 @@ prMachines.prototype = {
 		var c2 = this.pg.circle(p0,p2); 
 		var c3 = this.pg.circle(p0,p3); 
 
-		var pA = theP.addParametricPoint(c1, t); 
-		var pB = theP.addParametricPoint(c2, t*1.1); 
-		var pC = theP.addParametricPoint(c3, t*.9+.5); 
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
 
 		var md = this.squareInCircle(pA, pB, pC); 
 	},
@@ -326,7 +326,7 @@ prMachines.prototype = {
 		};
 		return result;
 	},
-	squareOnLine_test: function() { 		
+	squareOnLine_test: function(t) { 		
 		var p0 = this.pg.given(0.5,0.5); 
 		var p1 = this.pg.given(0.5,0.4); 
 		var p2 = this.pg.given(0.5,0.3); 
@@ -334,10 +334,9 @@ prMachines.prototype = {
 		var c1 = this.pg.circle(p0,p1); 
 		var c2 = this.pg.circle(p0,p2); 
 		var c3 = this.pg.circle(p0,p3); 
-
-		var pA = theP.addParametricPoint(c1, t); 
-		var pB = theP.addParametricPoint(c2, t*1.1); 
-		var pC = theP.addParametricPoint(c3, t*.9+.5); 
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
 
 		var md = this.squareOnLine(pA, pB, pC); 
 	},
@@ -358,7 +357,7 @@ prMachines.prototype = {
 		};
 		return result;
 	},
-	squareAcrossLine_test: function() { 
+	squareAcrossLine_test: function(t) { 
 		var p0 = this.pg.given(0.5,0.5); 
 		var p1 = this.pg.given(0.5,0.4); 
 		var p2 = this.pg.given(0.5,0.3); 
@@ -367,9 +366,9 @@ prMachines.prototype = {
 		var c2 = this.pg.circle(p0,p2); 
 		var c3 = this.pg.circle(p0,p3); 
 
-		var pA = theP.addParametricPoint(c1, t); 
-		var pB = theP.addParametricPoint(c2, t*1.1); 
-		var pC = theP.addParametricPoint(c3, t*.9+.5); 
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
 
 		var md = this.squareAcrossLine(pA, pB, pC); 
 	},
@@ -394,7 +393,7 @@ prMachines.prototype = {
 		var res = { "P1":p1, "P2":p2, "P3":p3, "P4":p4 };
 		return res; 
 	},
-	completeParallelogram_test: function() { 
+	completeParallelogram_test: function(t) { 
 		var p0 = this.pg.given(0.4,0.5); 
 		var p1 = this.pg.given(0.4,0.3); 
 		var p2 = this.pg.given(0.5,0.5); 
@@ -406,11 +405,16 @@ prMachines.prototype = {
 		var c2 = this.pg.circle(p2,p3); 
 		var c3 = this.pg.circle(p4,p5); 
 
-		var pA = theP.addParametricPoint(c1, t); 
-		var pB = theP.addParametricPoint(c2, t*1.1); 
-		var pC = theP.addParametricPoint(c3, t*.9+.5); 
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
 
 		var md = this.completeParallelogram(pA, pB, pC); 
+
+		var ln1 = this.pg.line(md["P1"], md["P2"]);
+		var ln1 = this.pg.line(md["P1"], md["P4"]);
+		var ln1 = this.pg.line(md["P3"], md["P2"]);
+		var ln2 = this.pg.line(md["P3"], md["P4"]);
 	},
 
 
@@ -449,13 +453,13 @@ prMachines.prototype = {
 
 		var ser = this.series(5, p360, p72, c0);
 		var result = {
-				"P0":p360, "P1":p72, "P2":ser["P3"], "P3":ser["P4"], "P4":ser["P5"], 
+				"P0":p360, "P1":p360, "P2":p72, "P3":ser["P3"], "P4":ser["P4"], "P5":ser["P5"],
 				"C0":cPent360, "C1":ser["C2"], "C2":ser["C3"], "C3":ser["C4"], "C4":ser["C5"], 
 			};
 		return result;
 
 	},
-	pentagonInCircle_test: function() { 
+	pentagonInCircle_test: function(t) { 
 		var p0 = this.pg.given(0.5,0.5); 
 		var p1 = this.pg.given(0.5,0.4); 
 		var p2 = this.pg.given(0.5,0.3); 
@@ -464,10 +468,17 @@ prMachines.prototype = {
 		var c2 = this.pg.circle(p0,p2); 
 		var c3 = this.pg.circle(p0,p3); 
 
-		var pA = theP.addParametricPoint(c1, t); 
-		var pB = theP.addParametricPoint(c2, t*1.1); 
-		var pC = theP.addParametricPoint(c3, t*.9+.5); 
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
 		var md = this.pentagonInCircle(pA,pB, pC);
+
+		var ln1 = this.pg.line(md["P1"], md["P2"]);
+		var ln1 = this.pg.line(md["P2"], md["P3"]);
+		var ln1 = this.pg.line(md["P3"], md["P4"]);
+		var ln2 = this.pg.line(md["P4"], md["P5"]);
+		var ln2 = this.pg.line(md["P5"], md["P1"]);
+
 	},
 
 	
@@ -517,7 +528,7 @@ prMachines.prototype = {
 		};
 		return res; 
 	},
-	pentagonOnLine_test: function() { 
+	pentagonOnLine_test: function(t) { 
 		var p0 = this.pg.given(0.5,0.5); 
 		var p1 = this.pg.given(0.5,0.4); 
 		var p2 = this.pg.given(0.5,0.3); 
@@ -526,14 +537,85 @@ prMachines.prototype = {
 		var c2 = this.pg.circle(p0,p2); 
 		var c3 = this.pg.circle(p0,p3); 
 
-		var pA = theP.addParametricPoint(c1, t); 
-		var pB = theP.addParametricPoint(c2, t*1.1); 
-		var pC = theP.addParametricPoint(c3, t*.9+.5); 
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
 
 		var md = this.pentagonOnLine(pA, pB, pC); 
+				var ln1 = this.pg.line(md["P1"], md["P2"]);
+		var ln1 = this.pg.line(md["P2"], md["P3"]);
+		var ln1 = this.pg.line(md["P3"], md["P4"]);
+		var ln2 = this.pg.line(md["P4"], md["P5"]);
+		var ln2 = this.pg.line(md["P5"], md["P1"]);
+
 	},
 
 	// pentagon across line
+	// two points => pentagon using them as a side
+	pentagonAcrossLine: function(p1, p2, pAbove) {
+		var c1 = this.pg.circle(p1,p2);
+		var c2 = this.pg.circle(p2,p1);
+		var ln12 = this.pg.line(p1,p2); 
+
+		// get midpt
+		var pHi = this.pg.first(c1,c2, pAbove); 
+		var pLo = this.pg.second(c1,c2, pAbove); 
+		var midLn = this.pg.line(pHi, pLo); 
+		var center = this.pg.first(ln12, midLn, pAbove); 
+
+		// get perp lines from p1, p2
+		var p0 = this.pg.second(c1, ln12, p2); 
+		var p3 = this.pg.second(c2, ln12, p1);
+		var cP0 = this.pg.circle(p0,p2);
+		var cP1 = this.pg.circle(p1,p3);
+		var cP2 = this.pg.circle(p2,p0);
+		var cP3 = this.pg.circle(p3,p1);
+		var p1Hi = this.pg.first(cP0,cP2, pAbove);
+		var p2Hi = this.pg.first(cP1,cP3, pAbove);
+		var lnP1 = this.pg.line(p1, p1Hi); 
+		var lnP2 = this.pg.line(p2, p2Hi); 
+
+		// corners of square abve p1p2
+		var pSq1 = this.pg.first(lnP1, c1, pAbove); 
+		var pSq2 = this.pg.first(lnP2, c2, pAbove); 
+
+		// the meat!
+		var cPent = this.pg.circle(center, pSq1); 
+		var pG = this.pg.first(cPent, ln12, p1); 
+		var pH = this.pg.first(cPent, ln12, p2); 
+		var cG = this.pg.circle(p1,pH); 
+		var cH = this.pg.circle(p2,pG); 
+
+		var pPent3 = this.pg.first(cG, c2, pAbove); 
+		var pPent4 = this.pg.first(cG, cH, pAbove); 
+		var pPent5 = this.pg.first(cH, c1, pAbove); 
+
+		var res = { "P1":p1, "P2":p2, "P3":pPent3, "P4":pPent4, "P5":pPent5, "P0":center, 
+			"Ln12":ln12, "LnMid":midLn, "CPent":cPent
+		};
+		return res; 
+	},
+	pentagonOnLine_test: function(t) { 
+		var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.4); 
+		var p2 = this.pg.given(0.5,0.3); 
+		var p3 = this.pg.given(0.5,0.1);
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
+
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
+
+		var md = this.pentagonOnLine(pA, pB, pC); 
+				var ln1 = this.pg.line(md["P1"], md["P2"]);
+		var ln1 = this.pg.line(md["P2"], md["P3"]);
+		var ln1 = this.pg.line(md["P3"], md["P4"]);
+		var ln2 = this.pg.line(md["P4"], md["P5"]);
+		var ln2 = this.pg.line(md["P5"], md["P1"]);
+
+	},
 
 
 
@@ -556,11 +638,19 @@ prMachines.prototype = {
 			};
 		return result;
 	},
-	hexagonInCircle_test: function() { 
-		var p1 = this.pg.given(0.5, 0.5);
-		var p2 = this.pg.given(0.5, 0.2);
-		var p3 = this.pg.given(0.6, 0.2);
-		var md = this.hexagonInCircle(p1,p2,p3);
+	hexagonInCircle_test: function(t) { 
+		var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.4); 
+		var p2 = this.pg.given(0.5,0.3); 
+		var p3 = this.pg.given(0.5,0.1);
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
+
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
+		var md = this.hexagonInCircle(pA,pB,pC);
 	},
 
 
@@ -585,47 +675,77 @@ prMachines.prototype = {
 			};
 		return result;
 	},
-	hexagonOnLine_test: function() { 
-		var p1 = this.pg.given(0.5, 0.5);
-		var p2 = this.pg.given(0.5, 0.3);
-		var p3 = this.pg.given(0.6, 0.2);
-		var md = this.hexagonOnLine(p1,p2,p3);
+	hexagonOnLine_test: function(t) { 
+		var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.4); 
+		var p2 = this.pg.given(0.5,0.3); 
+		var p3 = this.pg.given(0.5,0.1);
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
+
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
+		var md = this.hexagonOnLine(pA,pB,pC);
+		var ln = this.pg.line(pA, pB); 
 	},
 
 
 
 
-	hexagonAcrossLine: function(p1, p2,pAbove) {
-		var c1 = this.pg.circle(p1,p2); 
-		var c2 = this.pg.circle(p2,p1); 
-		var p0 = this.pg.first(c1,c2,pAbove); 
+	hexagonAcrossLine: function(p1, p3,pAbove) {
+		// make an eq triangle from p1 p2
+		var c1 = this.pg.circle(p1,p3); 
+		var c3 = this.pg.circle(p3,p1); 
+		var p5 = this.pg.first(c1,c3,pAbove); 
+		var c5 = this.pg.circle(p5,p1); 
+
+		// lines through circle intersections intersect at circle's center
+		var p13a = this.pg.first(c1,c3,pAbove); 
+		var p13b = this.pg.second(c1,c3,pAbove); 
+		var p15a = this.pg.first(c1,c5,pAbove); 
+		var p15b = this.pg.second(c1,c5,pAbove); 
+
+		var mid1 = this.pg.line(p13a, p13b); 
+		var mid2 = this.pg.line(p15a, p15b); 
+
+		var p0 = this.pg.first(mid1,mid2, pAbove); 
 		var c0 = this.pg.circle(p0,p1); 
+//		var p3 = this.pg.second(c0,c2,p1); 
+//		var p6 = this.pg.second(c0,c1,p2); 
 
-		var p3 = this.pg.second(c0,c2,p1); 
-		var p6 = this.pg.second(c0,c1,p2); 
+//		var c3 = this.pg.circle(p3,p2); 
+//		var c6 = this.pg.circle(p6,p1); 
 
-		var c3 = this.pg.circle(p3,p2); 
-		var c6 = this.pg.circle(p6,p1); 
-
-		var p4 = this.pg.second(c0,c3,p2); 
-		var p5 = this.pg.second(c0,c6,p1); 
-
-		var result = {
-				"P0":p0,   "P1":p1, "P2":p2, "P3":p3, "P4":p4, "P5":p5, "P6":p6,  
-				"C0":c0,   "C1":c1, "C2":c2, "C3":c3, "C6":c6  // didn't make c4 or c5!!! 
-			};
-		return result;
+//		var p4 = this.pg.second(c0,c3,p2); 
+//		var p5 = this.pg.second(c0,c6,p1); 
+//
+//		var result = {
+//				"P0":p0,   "P1":p1, "P2":p2, "P3":p3, "P4":p4, "P5":p5, "P6":p6,  
+//				"C0":c0,   "C1":c1, "C2":c2, "C3":c3, "C6":c6  // didn't make c4 or c5!!! 
+//			};
+//		return result;
 	},
-	hexagonOnLine_test: function() { 
-		var p1 = this.pg.given(0.5, 0.5);
-		var p2 = this.pg.given(0.5, 0.3);
-		var p3 = this.pg.given(0.6, 0.2);
-		var md = this.hexagonOnLine(p1,p2,p3);
+	hexagonAcrossLine_test: function(t) { 
+		var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.4); 
+		var p2 = this.pg.given(0.5,0.3); 
+		var p3 = this.pg.given(0.5,0.1);
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
+
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
+		var md = this.hexagonAcrossLine(pA,pB,pC);
+		var ln = this.pg.line(pA,pB); 
 	},
 
 
 
-	/////////////////////// 7,8,9,10,11,12?
+	/////////////////////// 7,8,9,10,...?
 
 
 	// doubler: given a circle, and a list of points on it, 
@@ -698,17 +818,25 @@ prMachines.prototype = {
 		return grid[pName];
 	}, 
 
-	gridFromTwoPoints_test: function(n, m, p1, p2) {
-		var p1 = this.pg.given(0.15, 0.85);
-		var p2 = this.pg.given(0.17, 0.85);
-		var p3 = this.pg.given(0.17, 0.8);
-		var grd = this.gridFromTwoPoints(24, 12, p1,p2,p3);
+	gridFromTwoPoints_test: function(t) {
+		var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.47); 
+		var p2 = this.pg.given(0.5,0.45); 
+		var p3 = this.pg.given(0.5,0.43);
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
 
-		var pA = this.getGridPoint(10,7, grd);
-		var pB = this.getGridPoint(12,8, grd);
-		var pC = this.getGridPoint(12,10, grd);
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
+		var grd = this.gridFromTwoPoints(24, 12, pA,pB,pC);
 
-		var md = this.gridFromTwoPoints(12, 12, pA,pB,pC);
+		var pD = this.getGridPoint(10,7, grd);
+		var pE = this.getGridPoint(12,8, grd);
+		var pF = this.getGridPoint(12,10, grd);
+
+		var md = this.gridFromTwoPoints(12, 12, pD,pE,pF);
 	}, 
 
 
@@ -762,19 +890,25 @@ prMachines.prototype = {
 		return res; 
 
 	}, 
-	gridFromThreePoints_test: function() {
-		var p1 = this.pg.given(0.11, 0.65);
-		var p2 = this.pg.given(0.1, 0.7);
-		var p3 = this.pg.given(0.12, 0.71);
-		var grd = this.gridFromThreePoints(36, 9, p1,p2,p3);
+	gridFromThreePoints_test: function(t) {
+		var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.47); 
+		var p2 = this.pg.given(0.5,0.45); 
+		var p3 = this.pg.given(0.5,0.43);
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
 
-		var pA = this.getGridPoint(30,6, grd);
-		var pB = this.getGridPoint(32,7, grd);
-		var pC = this.getGridPoint(32,8, grd);
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
+		var grd = this.gridFromThreePoints(24, 12, pA,pB,pC);
 
-		var md = this.gridFromThreePoints(16, 12, pA,pB,pC);
+		var pD = this.getGridPoint(10,7, grd);
+		var pE = this.getGridPoint(12,8, grd);
+		var pF = this.getGridPoint(12,10, grd);
 
-
+		var md = this.gridFromThreePoints(12, 12, pD,pE,pF);
 	}, 
 
 	getGridNthHorizontal: function(n, grid) {	
