@@ -27,20 +27,33 @@
 			case 6: theMachines.squareOnLine_test(t); break;
 			case 7: theMachines.squareAcrossLine_test(t); break;
 
-			case 18: theMachines.completeParallelogram_test(t); break;
+			case 8: theMachines.completeParallelogram_test(t); break;
 
-			case 8: theMachines.pentagonInCircle_test(t); break;
-			case 9: theMachines.pentagonOnLine_test(t); break;
-			case 10: theMachines.pentagonAcrossLine_test(t); break;
+			case 9: theMachines.goldenOnLine_test(t); break; 
+			case 10: theMachines.goldenOnLine2_test(t); break; 
+			case 11: theMachines.goldenOnLine3_test(t); break; 
 
-			case 11: theMachines.hexagonInCircle_test(t); break;
-			case 12: theMachines.hexagonOnLine_test(t); break;
-			case 13: theMachines.hexagonAcrossLine_test(t); break;			
-			case 14: theMachines.hexagonAcrossLineII_test(t); break;
+			case 12: theMachines.pentagonInCircle_test(t); break;
+			case 13: theMachines.pentagonOnLine_test(t); break;
+			case 14: theMachines.pentagonAcrossLine_test(t); break;
+
+			case 15: theMachines.hexagonInCircle_test(t); break;
+			case 16: theMachines.hexagonOnLine_test(t); break;
+			case 17: theMachines.hexagonAcrossLine_test(t); break;			
+			case 18: theMachines.hexagonAcrossLineII_test(t); break;
 			
-			case 15: theMachines.gridFromTwoPoints_test(t); break;
-			case 16: theMachines.gridFromThreePoints_test(t); break;
-			case 17: theMachines.doubler_test(t); break;
+			case 19: theMachines.heptagonInCircle_test(t); break;
+			case 20: theMachines.heptagonOnLine_test(t); break;
+
+			case 21: theMachines.octagonInCircle_test(t); break;
+			case 22: theMachines.octagonOnLine_test(t); break;
+
+			case 23: theMachines.nonagonInCircle_test(t); break;
+			case 24: theMachines.decaagonOnLine_test(t); break;
+			
+			case 25: theMachines.gridFromTwoPoints_test(t); break;
+			case 26: theMachines.gridFromThreePoints_test(t); break;
+			case 27: theMachines.doubler_test(t); break;
 			
 			default: break; 
 		}
@@ -53,7 +66,7 @@
 	
 	function startAnimation() { 
 		t = 0.0;
-		toUse = 13; 
+		toUse = 0; 
 		var theCanvas = document.getElementById("sampleCanvas");
 		theContext = theCanvas.getContext("2d");
 		
@@ -73,7 +86,7 @@
    	<div class="left"> <a href="index.html"><img src="../icon.jpg" alt="workly.com" /></a> 
     	</div>
     <div class="right">
-        Proportion tutorial: machines<br>
+        Proportion tests for the machines<br>
         </div>
         
     <div class="clear"></div>
@@ -90,20 +103,33 @@
             <option value='6'>square on line</option>
             <option value='7'>square across line</option>
 
-            <option value='18'>complete parallelogram</option>
+            <option value='8'>parallelogram completion</option>
 
-            <option value='8'>pentagon in circle</option>
-            <option value='9'>pentagon on line</option>
-            <option value='10'>pentagon across line</option>
+            <option value='9'>golden rectangle on line, extending from 2 points</option>
+            <option value='10'>gRect on line, short side</option>
+            <option value='11'>gRect on line, within two points</option>
 
-            <option value='11'>hexagon in circle</option>
-            <option value='12'>hexagon on line</option>
-            <option value='13'>hexagon across line</option>
-            <option value='14'>hexagon across line II</option>
+            <option value='12'>pentagon in circle</option>
+            <option value='13'>pentagon on line</option>
+            <option value='14'>pentagon across line</option>
 
-            <option value='15'>rectilinear grid</option>
-            <option value='16'>trapezoidal grid</option>
-            <option value='17'>polygon doubler</option>
+            <option value='15'>hexagon in circle</option>
+            <option value='16'>hexagon on line</option>
+            <option value='17'>hexagon across line</option>
+            <option value='18'>hexagon across line II</option>
+
+            <option value='19'>heptagon in circle (approximate!)</option>
+            <option value='20'>heptagon on line</option>
+
+            <option value='21'>octagon in circle</option>
+            <option value='22'>octagon on line</option>
+
+            <option value='23'>nontagon in circle</option>
+            <option value='24'>nontagon on line</option>
+
+            <option value='25'>rectilinear grid</option>
+            <option value='26'>parallelogram grid</option>
+            <option value='27'>polygon doubler</option>
 
             </select>
     	<!--<button onclick="setParameters();" href="javascript:;">Go</button> -->

@@ -85,14 +85,14 @@ prMachines.prototype = {
 		var p3 = this.pg.second(conector, c1, p2); 
 		var diag = this.midpoint(p3, p2, pAbove);
 
-		var result = {"Perpendicular":diag["MidLine"], 
-						  "Connector":diag["Connector"],
+		var result = {"Perpendicular":diag.MidLine, 
+						  "Connector":diag.Connector,
 						  		"P3":p3,
-						   	    "PUp":diag["I1"],   
-						   	    "PDown":diag["I2"],   
+						   	    "PUp":diag.I1,   
+						   	    "PDown":diag.I2,   
 						   	    "C1":c1,   
-						   	    "C2":diag["C1"],   
-						   	    "C3":diag["C2"]
+						   	    "C2":diag.C1,   
+						   	    "C3":diag.C2
 						   	};
 		return result;
 	},
@@ -162,7 +162,7 @@ prMachines.prototype = {
 	//  PT1 is the tangent point closest to pAbove
 	tangents: function(p1,p2,p3, pAbove) {
 		var mids = this.midpoint(p1, p3, pAbove);
-		var midPt = mids["MidPoint"];
+		var midPt = mids.MidPoint;
 		var c1 = this.pg.circle(p1,p2);
 		var c2 = this.pg.circle(midPt, p1); // circle at p1 through p3
 		var pt1 = this.pg.first(c1, c2, pAbove);
@@ -201,7 +201,7 @@ prMachines.prototype = {
 		var eqp3 = this.pg.first(c1, ln3, p3);
 
 		var midpoint = this.midpoint(p1, eqp3, pAbove);
-		var result = {"Bisector":midpoint["MidLine"], "MidPoint":midpoint["MidPoint"]}; 
+		var result = {"Bisector":midpoint.MidLine, "MidPoint":midpoint.MidPoint}; 
 		return result;
 	},
 	angleBisection_test: function(t) { 
@@ -346,14 +346,14 @@ prMachines.prototype = {
 	squareAcrossLine: function(p1, p3, pAbove) {
 		var mids = this.midpoint(p1,p3,pAbove); 
 		// {"MidPoint":midpt, "MidLine":midLine, "Connector":conr, "I1":int1, "I2":int2, "C1":c1, "C2":c2};
-		var pmid = mids["MidPoint"];
-		var lnmid = mids["MidLine"];
+		var pmid = mids.MidPoint;
+		var lnmid = mids.MidLine;
 		var cMid = this.pg.circle(pmid, p1); 
 		var p2 = this.pg.first(cMid,lnmid, pAbove); 
 		var p4 = this.pg.second(cMid,lnmid, pAbove); 
 		var result = {
 			"P1":p1, "P2":p2, "P3":p3, "P4":p4,
-			"L13":mids["Connector"], "LN24":lnmid, "C1":mids["C1"], "C2":mids["C2"]
+			"L13":mids.Connector, "LN24":lnmid, "C1":mids.C1, "C2":mids.C2
 		};
 		return result;
 	},
@@ -386,7 +386,7 @@ prMachines.prototype = {
 	completeParallelogram: function(p1,p2,p3) {
 		var mid = this.midpoint(p1,p3,p2);
 		// var result = {"MidPoint":midpt, "MidLine":midLine, "Connector":conr, "I1":int1, "I2":int2, "C1":c1, "C2":c2};
-		var midPt = mid["MidPoint"];
+		var midPt = mid.MidPoint;
 		var midline = this.pg.line(p2,midPt); 
 		var cFinder = this.pg.circle(midPt,p2);
 		var p4 = this.pg.second(cFinder,midline,p2);
@@ -411,10 +411,183 @@ prMachines.prototype = {
 
 		var md = this.completeParallelogram(pA, pB, pC); 
 
-		var ln1 = this.pg.line(md["P1"], md["P2"]);
-		var ln1 = this.pg.line(md["P1"], md["P4"]);
-		var ln1 = this.pg.line(md["P3"], md["P2"]);
-		var ln2 = this.pg.line(md["P3"], md["P4"]);
+		var ln1 = this.pg.line(md.P1, md.P2);
+		var ln1 = this.pg.line(md.P1, md.P4);
+		var ln1 = this.pg.line(md.P3, md.P2);
+		var ln2 = this.pg.line(md.P3, md.P4);
+	},
+
+
+
+
+
+
+
+	/////////////////////// golden rectangles
+	/////////////////////// golden rectangles
+	/////////////////////// golden rectangles
+	// two points-> line -> golden rectangle from the square defined by those two lines,
+	// extended along the line.
+	goldenOnLine1: function(p1,p2, pAbove) {
+		var ln1 = this.pg.addLine(p1, p2); // draw a line through them
+		var c1 = this.pg.addCircle(p1, p2); // draw circles thru both both ways
+		var c2 = this.pg.addCircle(p2, p1); 
+	
+		var p3 = this.pg.addSecondIntersection(c1, ln1, p2); 		// points on the outside
+		var p4 = this.pg.addSecondIntersection(c2, ln1, p1); 
+	
+		var c3 = this.pg.addCircle(p3, p2); 		// big circles
+		var c4 = this.pg.addCircle(p1, p4); 
+		var c5 = this.pg.addCircle(p2, p3); 
+		var c6 = this.pg.addCircle(p4, p1); 
+	
+		var p5 = this.pg.addSecondIntersection(c1, c2, p4); // gives the lower of the two
+		var p6 = this.pg.addFirstIntersection(c5, c3, p5); 
+		var p7 = this.pg.addFirstIntersection(c6, c4, p5); 
+		var p8 = this.pg.addFirstIntersection(c1, c2, p4); 
+	
+		var ln2 = this.pg.addLine(p1, p6); 
+		var ln3 = this.pg.addLine(p2, p7); 
+		var ln4 = this.pg.addLine(p5, p8); 
+	
+		var p9 = this.pg.addFirstIntersection(c1, ln2, p5); 
+		var p10 = this.pg.addFirstIntersection(c2, ln3, p5); 
+		var ln5  = this.pg.addLine(p9, p10); // lower edge
+	
+		var p11 = this.pg.addFirstIntersection(ln1, ln4, p5); // paydirt
+		var p12 = this.pg.addFirstIntersection(ln5, ln4, p5); 
+		var c7 = this.pg.addCircle(p11, p10); 
+		var c8 = this.pg.addCircle(p12, p2);  
+
+		var p13 = this.pg.addFirstIntersection(c7, ln1, p4); 
+		var p14 = this.pg.addFirstIntersection(c8, ln5, p4); 
+		var ln6 = this.pg.addLine(p13, p14); 
+
+		var res = { "P1":p1, "P2":p2, "P3":p3, "P4":p4 };
+		return res; 
+	},
+	goldenOnLine_test: function(t) { 
+		var p0 = this.pg.given(0.4,0.5); 
+		var p1 = this.pg.given(0.4,0.3); 
+		var p2 = this.pg.given(0.5,0.5); 
+		var p3 = this.pg.given(0.5,0.3); 
+		var p4 = this.pg.given(0.6,0.5); 
+		var p5 = this.pg.given(0.6,0.3);
+
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p2,p3); 
+		var c3 = this.pg.circle(p4,p5); 
+
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
+
+		var md = this.goldenOnLine1(pA, pB); 
+
+		var ln1 = this.pg.line(md.P1, md.P2);
+		var ln1 = this.pg.line(md.P1, md.P4);
+		var ln1 = this.pg.line(md.P3, md.P2);
+		var ln2 = this.pg.line(md.P3, md.P4);
+	},
+
+
+	// puts the short side on the line
+	goldenOnLine2: function(p1,p2, pAbove) {
+		var ln1 = this.pg.line(p1, p2); // draw a line through them
+		var c1 = this.pg.circle(p1, p2); // draw circles thru both both ways
+		var c2 = this.pg.circle(p2, p1); 
+	
+		var pOuter1 = this.pg.second(c1, ln1, p2); 		// points on the outside
+		var pOuter2 = this.pg.second(c2, ln1, p1); 
+	
+		var cb1a = this.pg.circle(pOuter1, p2); 		// perp lines thru p1 p2
+		var cb1b = this.pg.circle(p2, pOuter1); 
+		var cb2a = this.pg.circle(p1, pOuter2); 
+		var cb2b = this.pg.circle(pOuter2, p1); 
+	
+		var p1hi = this.pg.first(cb1a, cb1b, pAbove); // gives the lower of the two
+		var p2hi = this.pg.first(cb2a, cb2b, pAbove); 
+		
+		var lnprp1 = this.pg.line(p1, p1hi); 
+		var lnprp2 = this.pg.line(p2, p2hi); 
+
+		var pSq1 = this.pg.first(lnprp1, c1, pAbove);
+		var pSq2 = this.pg.first(lnprp2, c2, pAbove); 
+		var c1hi = this.pg.circle(pSq1, p1);
+		var c2hi = this.pg.circle(pSq2, p2);
+
+		var pMid1 = this.pg.first(c1,c1hi, p2);
+		var pMid2 = this.pg.first(c2,c2hi, p1);
+		var lnMid = this.pg.line(pMid1, pMid2);
+
+		var pgold1 = this.pg.first(lnMid, lnprp1, pAbove);
+		var pgold2 = this.pg.first(lnMid, lnprp2, pAbove);
+		var cgold1 = this.pg.circle(pgold2,p1);
+		var cgold2 = this.pg.circle(pgold1,p2);
+
+		var p3 = this.pg.first(cgold1, lnprp2, p2hi); 
+		var p4 = this.pg.first(cgold2, lnprp1, p1hi); 
+		var res = { "P1":p1, "P2":p2, "P3":p3, "P4":p4,
+			 "L12":ln1, "L23":lnprp2, "L41":lnprp1, "C1":c1, "C2":c2, "PSQ1":pSq1, "PSQ2":pSq2 };
+		return res; 
+	},
+	goldenOnLine2_test: function(t) { 
+		var p0 = this.pg.given(0.33,0.33); 
+		var p1 = this.pg.given(0.33,0.415); 
+		var p2 = this.pg.given(0.33,0.5); 
+		var p3 = this.pg.given(0.33,0.66);
+
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
+
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
+
+		var md = this.goldenOnLine2(pA, pB, pC); 
+
+		var ln34 = this.pg.line(md.P3, md.P4);
+		// obligatory: YES, THIS IS GOLDEN
+
+		var md2 = this.goldenOnLine2(md.P4, md.PSQ1, md.P3);
+	},
+
+
+	// puts the long side on the line
+	// I don't have a direct construction for this
+	//   but the gOL2 routine can be used; the gr's gnomon is a square
+	goldenOnLine3: function(p1,p2, pAbove) {
+		var gsh = this.goldenOnLine2(p1,p2,pAbove); 
+		p3big = gsh.P3; 
+		p4big = gsh.P4; 
+		ln23 = gsh.L23;
+		ln41 = gsh.L41;
+		var c3 = this.pg.circle(p3big, p4big); // make a sq from the top two points of the larger GR
+		var c4 = this.pg.circle(p4big, p3big); 
+		var p3 = this.pg.first(c4, ln41, p1); 
+		var p4 = this.pg.first(c3, ln23, p1); 
+		var res = { "P1":p1, "P2":p2, "P3":p3, "P4":p4,
+			 "L12":gsh.L12, "L23":gsh.L23, "L41":gsh.L41, "C1":gsh.C1, "C2":gsh.C2 };
+		return res; 
+	},
+	goldenOnLine3_test: function(t) { 
+		var p0 = this.pg.given(0.33,0.33); 
+		var p1 = this.pg.given(0.33,0.415); 
+		var p2 = this.pg.given(0.33,0.5); 
+		var p3 = this.pg.given(0.33,0.66);
+
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
+
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
+
+		var md = this.goldenOnLine3(pA, pB, pC); 
+
+		var ln34 = this.pg.line(md.P3, md.P4);
 	},
 
 
@@ -473,11 +646,11 @@ prMachines.prototype = {
 		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
 		var md = this.pentagonInCircle(pA,pB, pC);
 
-		var ln1 = this.pg.line(md["P1"], md["P2"]);
-		var ln1 = this.pg.line(md["P2"], md["P3"]);
-		var ln1 = this.pg.line(md["P3"], md["P4"]);
-		var ln2 = this.pg.line(md["P4"], md["P5"]);
-		var ln2 = this.pg.line(md["P5"], md["P1"]);
+		var ln1 = this.pg.line(md.P1, md.P2);
+		var ln1 = this.pg.line(md.P2, md.P3);
+		var ln1 = this.pg.line(md.P3, md.P4);
+		var ln2 = this.pg.line(md.P4, md.P5);
+		var ln2 = this.pg.line(md.P5, md.P1);
 
 	},
 
@@ -542,11 +715,11 @@ prMachines.prototype = {
 		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
 
 		var md = this.pentagonOnLine(pA, pB, pC); 
-				var ln1 = this.pg.line(md["P1"], md["P2"]);
-		var ln1 = this.pg.line(md["P2"], md["P3"]);
-		var ln1 = this.pg.line(md["P3"], md["P4"]);
-		var ln2 = this.pg.line(md["P4"], md["P5"]);
-		var ln2 = this.pg.line(md["P5"], md["P1"]);
+		var ln1 = this.pg.line(md.P1, md.P2);
+		var ln1 = this.pg.line(md.P2, md.P3);
+		var ln1 = this.pg.line(md.P3, md.P4);
+		var ln2 = this.pg.line(md.P4, md.P5);
+		var ln2 = this.pg.line(md.P5, md.P1);
 
 	},
 
@@ -595,27 +768,12 @@ prMachines.prototype = {
 		};
 		return res; 
 	},
-	pentagonOnLine_test: function(t) { 
-		var p0 = this.pg.given(0.5,0.5); 
-		var p1 = this.pg.given(0.5,0.4); 
-		var p2 = this.pg.given(0.5,0.3); 
-		var p3 = this.pg.given(0.5,0.1);
-		var c1 = this.pg.circle(p0,p1); 
-		var c2 = this.pg.circle(p0,p2); 
-		var c3 = this.pg.circle(p0,p3); 
-
-		var pA = this.pg.addParametricPoint(c1, t); 
-		var pB = this.pg.addParametricPoint(c2, t*1.1); 
-		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
-
-		var md = this.pentagonOnLine(pA, pB, pC); 
-				var ln1 = this.pg.line(md["P1"], md["P2"]);
-		var ln1 = this.pg.line(md["P2"], md["P3"]);
-		var ln1 = this.pg.line(md["P3"], md["P4"]);
-		var ln2 = this.pg.line(md["P4"], md["P5"]);
-		var ln2 = this.pg.line(md["P5"], md["P1"]);
-
+	pentagonAcrossLine_test: function(t) { 
+//		var md = this.pentagonAcrossLine(pA, pB, pC); 
 	},
+
+
+
 
 
 
@@ -633,8 +791,8 @@ prMachines.prototype = {
 		var ser = this.series(6, p12,p2, c0);
 
 		var result = {
-				"P1":p12, "P2":p2, "P3":ser["P3"], "P4":ser["P4"], "P5":ser["P5"], "P0":p0, 
-				"C1":c12, "C2":ser["C2"], "P3":ser["C3"], "C3":ser["C4"], "C4":ser["C5"], "C5":ser["C6"], 
+				"P1":p12, "P2":p2, "P3":ser.P3, "P4":ser.P4, "P5":ser.P5, "P0":p0, 
+				"C1":c12, "C2":ser.C2, "C3":ser.C3, "C4":ser.C4, "C5":ser.C5, "C6":ser.C6, 
 			};
 		return result;
 	},
@@ -704,28 +862,25 @@ prMachines.prototype = {
 		// lines through circle intersections intersect at circle's center
 		var p13a = this.pg.first(c1,c3,pAbove); 
 		var p13b = this.pg.second(c1,c3,pAbove); 
+		var diameter25 = this.pg.line(p13a, p13b); 
+
 		var p15a = this.pg.first(c1,c5,pAbove); 
 		var p15b = this.pg.second(c1,c5,pAbove); 
+		var diameter36 = this.pg.line(p15a, p15b); 
 
-		var mid1 = this.pg.line(p13a, p13b); 
-		var mid2 = this.pg.line(p15a, p15b); 
-
-		var p0 = this.pg.first(mid1,mid2, pAbove); 
+		var p0 = this.pg.first(diameter25,diameter36, pAbove); 
 		var c0 = this.pg.circle(p0,p1); 
-//		var p3 = this.pg.second(c0,c2,p1); 
-//		var p6 = this.pg.second(c0,c1,p2); 
 
-//		var c3 = this.pg.circle(p3,p2); 
-//		var c6 = this.pg.circle(p6,p1); 
+		var p2 = this.pg.second(c0,diameter25,p5); 
+		var p6 = this.pg.second(c0,diameter36,p3); 
 
-//		var p4 = this.pg.second(c0,c3,p2); 
-//		var p5 = this.pg.second(c0,c6,p1); 
-//
-//		var result = {
-//				"P0":p0,   "P1":p1, "P2":p2, "P3":p3, "P4":p4, "P5":p5, "P6":p6,  
-//				"C0":c0,   "C1":c1, "C2":c2, "C3":c3, "C6":c6  // didn't make c4 or c5!!! 
-//			};
-//		return result;
+		var diameter14 = this.pg.line(p1,p0); 
+		var p4 = this.pg.second(c0,diameter14,p1); 
+
+		var result = {
+				"P0":p0,   "P1":p1, "P2":p2, "P3":p3, "P4":p4, "P5":p5, "P6":p6,  
+				"C0":c0,   "C1":c1, "C3":c3, "C5":c5, "L25":diameter25, "L36":diameter36, "L14":diameter14	};
+		return result;
 	},
 	hexagonAcrossLine_test: function(t) { 
 		var p0 = this.pg.given(0.5,0.5); 
@@ -745,7 +900,66 @@ prMachines.prototype = {
 
 
 
-	/////////////////////// 7,8,9,10,...?
+
+
+	/////////////////////// heptagons
+	/////////////////////// heptagons
+	/////////////////////// heptagons
+	// construction by John Mitchel, as shown in Jon Allen's "Construction Geometry"
+	heptagonInCircle: function(p0, p360,pAbove) {
+		var perp = this.perpendicular(p0,p360, pAbove); 
+		var diameter180 = perp.Perpendicular;
+		var diameter0 = perp.Connector;
+		var p180 = perp.P3;
+
+		var c360 = this.pg.circle(p360, p0); 
+		var c0 = perp.C1;
+		var p90 = this.pg.first(c0, diameter180, pAbove);
+		var c90 = this.pg.circle(p90, p0); 
+		var p270 = this.pg.second(c0, diameter180, pAbove);
+		var c270 = this.pg.circle(p270, p0); 
+
+		// construction issue! can't depend on pAbove to get the intersection outside of c0 
+		var pSq1 = this.pg.second(c360,c270,p0);
+		var pSq2 = this.pg.second(c360,c90,p0);
+
+		var goalArc1 = this.pg.circle(pSq1, pSq2); 
+		var goalArc2 = this.pg.circle(pSq2, pSq1); 
+		var goalPt = this.pg.first(goalArc1, goalArc2, p0);
+
+		var lnForP2 = this.pg.line(goalPt, pSq2); 
+		var p2 = this.pg.first(c0, lnForP2, pSq2);
+		var ser = this.series(7, p360,p2, c0);
+
+		var result = {
+				"P1":p360, "P2":p2, "P3":ser.P3, "P4":ser.P4, "P5":ser.P5, "P6":ser.P6, "P7":ser.P7, "P0":p0, 
+				"C0":c0, "C1":c360, "C2":ser.C2, "C3":ser.C3, "C4":ser.C4, "C5":ser.C5, "C6":ser.C6, "C7":ser.C7, 
+			};
+		return result;
+	},
+	heptagonInCircle_test: function(t) { 
+		var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.43); 
+		var p2 = this.pg.given(0.5,0.36); 
+		var p3 = this.pg.given(0.5,0.07);
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
+
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
+		var md = this.heptagonInCircle(pA,pB,pC);
+
+		var ln1 = this.pg.line(md.P1, md.P2);
+		var ln1 = this.pg.line(md.P2, md.P3);
+		var ln1 = this.pg.line(md.P3, md.P4);
+		var ln1 = this.pg.line(md.P4, md.P5);
+		var ln1 = this.pg.line(md.P5, md.P6);
+		var ln1 = this.pg.line(md.P6, md.P7);
+		var ln1 = this.pg.line(md.P7, md.P1);
+
+	},
 
 
 	// doubler: given a circle, and a list of points on it, 
@@ -764,12 +978,12 @@ prMachines.prototype = {
 	// the square is p1p2p3p4; the y-axis is the line p1p4
 	gridFromTwoPoints: function(n, m, p1, p2, pAbove) { // p1=origin, p2=x-axis
 		var sq = this.squareOnLine(p1, p2, pAbove);
-		var p3 = sq["P3"];
-		var p4 = sq["P4"];
-		var xAxis = sq["L12"];
-		var lnx1 = sq["L34"]; // line for y=1
-		var yAxis = sq["L41"];
-		var lny1 = sq["L23"]; // line for x=1
+		var p3 = sq.P3;
+		var p4 = sq.P4;
+		var xAxis = sq.L12;
+		var lnx1 = sq.L34; // line for y=1
+		var yAxis = sq.L41;
+		var lny1 = sq.L23; // line for x=1
 
 		var x0s = this.series(n, p1, p2, xAxis);
 		var x1s = this.series(n, p4, p3, lnx1);
@@ -781,13 +995,13 @@ prMachines.prototype = {
 		xs=[];
 		xs[0] = xAxis;
 		xs[1] = lnx1; 
-		res["LX0"] = xAxis; 
-		res["LX1"] = lnx1; 
+		res.LX0 = xAxis; 
+		res.LX1 = lnx1; 
 		ys=[]; 
 		ys[0] = yAxis;
 		ys[1] = lny1; 
-		res["LY0"] = yAxis; 
-		res["LY1"] = lny1; 
+		res.LY0 = yAxis; 
+		res.LY1 = lny1; 
 		for (i=2; i<(n+1); i=i+1) {
 			pName = "P" + i; 
 			pA = x0s[pName];
@@ -843,7 +1057,7 @@ prMachines.prototype = {
 	// as gridFromTwoPoints, but p1 p2 p3 define a parallelogram
 	gridFromThreePoints: function(n, m, p1, p2, p3) { 
 		var pl = this.completeParallelogram(p1, p2, p3);
-		var p4 = pl["P4"];
+		var p4 = pl.P4;
 		var xAxis = this.pg.line(p2,p3);
 		var lnx1 = this.pg.line(p1,p4);
 		var yAxis = this.pg.line(p2,p1); 
@@ -859,13 +1073,13 @@ prMachines.prototype = {
 		xs=[];
 		xs[0] = xAxis;
 		xs[1] = lnx1; 
-		res["LX0"] = xAxis; 
-		res["LX1"] = lnx1; 
+		res.LX0 = xAxis; 
+		res.LX1 = lnx1; 
 		ys=[]; 
 		ys[0] = yAxis;
 		ys[1] = lny1; 
-		res["LY0"] = yAxis; 
-		res["LY1"] = lny1; 
+		res.LY0 = yAxis; 
+		res.LY1 = lny1; 
 		for (i=2; i<(n+1); i=i+1) {
 			pName = "P" + i; 
 			pA = x0s[pName];
