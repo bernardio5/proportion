@@ -1,6 +1,6 @@
 <!DOCTYPE html >
 <head>
-<title>workly.com/proportion/tutorial</title>
+<title>Proportion/tutorial</title>
 <link rel="stylesheet" href="../styles.css">
 <script type="text/javascript" src="../proportion.js"></script>
 <script type="text/javascript">
@@ -17,13 +17,15 @@
 		// given two points
 		var p1 = theP.addGivenPoint(.2, .5); 
 		var p2 = theP.addGivenPoint(.5, .5); 
-		if (frame>0) { 
-			// draw golden rectangle
+		if (frame>20) { 
+		// draw a line through them
 			var ln1 = theP.addLine(p1, p2); 
+			theP.setGroup(ln1, 1); 
 			
 			// draw circles thru both both ways
 			var c1 = theP.addCircle(p1, p2); 
 			var c2 = theP.addCircle(p2, p1); // the first arc of the spiral!
+			theP.setGroup(c2, 1);
 			// points on the outside
 			var p3 = theP.addSecondIntersection(c1, ln1, p2); 
 			var p4 = theP.addSecondIntersection(c2, ln1, p1); 
@@ -33,6 +35,7 @@
 			var c5 = theP.addCircle(p2, p3); 
 			var c4 = theP.addCircle(p1, p4); // big circles for vert thru p2
 			var c6 = theP.addCircle(p4, p1); 
+			theP.setGroup(c6, 1); 
 			
 			// make points to use to make vertical lines
 			var p5 = theP.addSecondIntersection(c1, c2, p4); // p1p2 bisector lower; generally used to get pts below ln1
@@ -42,6 +45,7 @@
 		
 			// vertical lines
 			var ln2 = theP.addLine(p1, p6); // vert thru p1
+			theP.setGroup(ln2, 1);
 			var ln3 = theP.addLine(p2, p7); // vert thru p2
 			var ln4 = theP.addLine(p5, p8); // bisector of p1p2
 
@@ -49,7 +53,8 @@
 			var p9 = theP.addFirstIntersection(c1, ln2, p5); 
 			var p10 = theP.addFirstIntersection(c2, ln3, p5); 
 			var ln5  = theP.addLine(p9, p10);  // ln5 = bottom edge.
-			
+			theP.setGroup(ln5, 1); 
+
 			// c7 and c8 intersect 
 			var p11 = theP.addFirstIntersection(ln1, ln4, p5); 
 			var p12 = theP.addFirstIntersection(ln5, ln4, p5); 
@@ -60,49 +65,47 @@
 			var p13 = theP.addFirstIntersection(c7, ln1, p4); 
 			var p14 = theP.addFirstIntersection(c8, ln5, p4); 
 			var ln6 = theP.addLine(p13, p14); 
-			
+			theP.setGroup(ln6, 1); 
 		}
 		
-		if (frame >50) { 
+		if (frame >40) { 
 			var c20 = theP.addCircle(p14, p10); 
 			var c21 = theP.addCircle(p10, p14); 
 			var p20 = theP.addFirstIntersection(c20, ln6, p2) ;
 			var p21 = theP.addFirstIntersection(c21, ln3, p2); 
 			var ln20 = theP.addLine(p20, p21); 
 			var c22 = theP.addCircle(p21, p10); // more spiral
+			theP.setGroup(c22, 1); 
+			
 		
+		}
+		if (frame >80) { 
 			var c30 = theP.addCircle(p13, p20); 
 			var c31 = theP.addCircle(p20, p13); 
 			var p30 = theP.addFirstIntersection(c30, ln1, p1) ;
 			var p31 = theP.addFirstIntersection(c31, ln20, p1); 
 			var ln30 = theP.addLine(p30, p31); 
-			var c32 = theP.addCircle(p31, p20); 
+			var c232 = theP.addCircle(p31, p20); 
+			theP.setGroup(c232, 1); 
+		
 		}
 		
-		if (frame>100) { 
-			var a1 = theP.addArc(c6, .75, 1.0); 
-			theP.setGroup(a1, 1); 
-			var a2 = theP.addArc(c2, 0, .25); 
-			theP.setGroup(a2, 1); 
-			var a3 = theP.addArc(c22, 0.5, .75); 
-			theP.setGroup(a3, 1); 
-			var a4 = theP.addArc(c32, 0, .25); 
-			theP.setGroup(a4, 1); 
-		}
 		
 		// use two sets of "beginPath" and "stroke" calls to use two colors
 		theC.beginPath();
 		theC.strokeStyle = "#fcc";
 		theP.trace(); // draw everything pink and faint
 		theC.stroke();
+		if (frame>120) { 
+			theC.beginPath(); 
+			theC.strokeStyle = "#000";
+			theP.traceGroup(1); // draw the rect and the spiral black and bold
+			theC.stroke(); 
+		}
 		
-		theC.beginPath(); 
-		theC.strokeStyle = "#000";
-		theP.traceGroup(1); // draw the rect and the spiral black and bold
-		theC.stroke(); 
-	
+		
 		++frame;
-		if (frame>200) { frame = 0; }
+		if (frame>300) { frame = 0; }
 	
 	}
 	
@@ -118,7 +121,6 @@
 	}
 
 
-
 </script>
 
 <body  onLoad="redraw();">
@@ -127,7 +129,7 @@
    	<div class="left"> <a href="index.html"><img src="../icon.jpg" alt="workly.com" /></a> 
     	</div>
     <div class="right">
-        Proportion tutorial: building a spiral.
+        Proportion tutorial: building a spiral; using color for legibility.
         </div>
         
     <div class="clear"></div>
@@ -140,7 +142,15 @@
     
     <div class = "subCont">
     	<div class="codeBox">
+        By setting the "group" propoerty of some of the circles and lines, 
+        and using "traceGroup" instead of "trace", we can make a much clearer diagram. 
+        <br>
+        <br>
+        Still, we are only able to draw points, lines, and circles. 
+        The spiral is visible, but we are not yet able to draw it. 
         
+       <br>
+       <br>
        Please look at the source code of this page for more information.
 	</div></div> 
         
