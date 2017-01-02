@@ -83,16 +83,16 @@ prMachines.prototype = {
 		var c1 = this.pg.circle(p1, p2); 
 		var conector = this.pg.line(p1, p2);
 		var p3 = this.pg.second(conector, c1, p2); 
-		var diag = this.midpoint(p3, p2, pAbove);
+		var mids = this.midpoint(p3, p2, pAbove);
 
-		var result = {"Perpendicular":diag.MidLine, 
-						  "Connector":diag.Connector,
+		var result = {"Perpendicular":mids.MidLine, 
+						  "Connector":mids.Connector,
 						  		"P3":p3,
-						   	    "PUp":diag.I1,   
-						   	    "PDown":diag.I2,   
+						   	    "PUp":mids.I1,   
+						   	    "PDown":mids.I2,   
 						   	    "C1":c1,   
-						   	    "C2":diag.C1,   
-						   	    "C3":diag.C2
+						   	    "C2":mids.C1,   
+						   	    "C3":mids.C2
 						   	};
 		return result;
 	},
@@ -109,8 +109,52 @@ prMachines.prototype = {
 		var pB = this.pg.addParametricPoint(c2, t*1.1); 
 		var pC = this.pg.addParametricPoint(c3, t*.9); 
 		var md = this.perpendicular(pA,pB, pC);
+
 	},
 
+
+	goldenRatio: function(p1, p2, pAbove) { 
+		var perps = this.perpendicular(p2,p1,pAbove);
+		var c1 = this.pg.circle(p1,p2); 
+		var pHi = this.pg.first(c1,perps.C1,pAbove); 
+		var pLo = this.pg.second(c1,perps.C1,pAbove); 
+		var midLn = this.pg.line(pHi, pLo);
+		var midPt = this.pg.first(midLn, perps.Connector, pAbove);
+		var cMid = this.pg.circle(p2,midPt); 
+		var triHi = this.pg.first(cMid,perps.Perpendicular, pAbove);
+		var hyp = this.pg.line(p1,triHi); 
+		var cHi = this.pg.circle(triHi, p2); 
+		var pRat = this.pg.first(cHi,hyp,p1); 
+		var cRat = this.pg.circle(p1,pRat); 
+		var pG = this.pg.first(perps.Connector,cRat, pRat); 
+
+		var result = {
+			"P1":p1, "P2":p2, "PG":pG, "CG":cRat,
+			"PMid":midPt, "LMid":midLn, "CMid":cMid,
+			"Perpendicular":perps.Perpendicular, "Connector":perps.Connector,
+			"C1":c1, "C2":perps.C1, "Hypotenuse":hyp
+		};
+		return result;
+
+	},
+	goldenRatio_test: function(t) { 
+//		var pA = this.pg.given(0.5,0.5); 
+//		var pB = this.pg.given(0.5,0.2); 
+//		var pC = this.pg.given(0.9,0.1); 
+
+		var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.43); 
+		var p2 = this.pg.given(0.5,0.36); 
+		var p3 = this.pg.given(0.5,0.07);
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
+
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
+		var md = this.goldenRatio(pA,pB,pC);
+	},
 
 
 
@@ -152,6 +196,59 @@ prMachines.prototype = {
 		var l1 = this.pg.line(pC, pB);
 		var md = this.series(10, pC, pB, l1);
 	},
+
+
+
+	// given p1 and p2, two points, 
+	// return n points, each named "P1" through "Pn", equally spaced, 
+	// on the line connecting p1 and p2
+	//        and n circles, each named "C1"-"Cn"
+	//        P1 = p1, p2 = p2 
+	subdivide: function(n, p1,p2) {
+		var c1 = this.pg.circle(p1,p2);
+		var c2 = this.pg.circle(p2,p1);
+		var conn = this.pg.line(p1,p2); 
+		var pUp = this.pg.first(c1,c2, p1); // don't know or care which we get 
+		var pDn = this.pg.second(c1,c2, p1); // as long as this is the other one
+		var ln1 = this.pg.line(p1,pUp);
+		var ln2 = this.pg.line(p2,pDn);
+
+		// getting a smaller length than p1-p2 would improve accuracy
+		// not a concern yet.
+		var ser1 = this.series(n, p1,pUp, ln1);
+		var ser2 = this.series(n, p2,pDn, ln2);
+
+		var result = {"P1":p1, "Connector":conn };
+		var i, backwards, name1, name2, pA, pB, lnC, pC; 
+		for (i=2; i<=n; i=i+1) {
+			backwards = (n+2)-i;  
+			name1 = "P" + i; 
+			name2 = "P" + backwards; 
+			pA = ser1[name1];
+			pB = ser2[name2];
+			lnC = this.pg.line(pA,pB); 
+			pC = this.pg.first(lnC, conn, p1);
+			result[name1] = pC;
+		}
+		return result;
+	},
+	subdivide_test: function(t) { 
+//		var pA = this.pg.given(0.3,0.5); 
+//		var pB = this.pg.given(0.7,0.5); 
+
+		var p0 = this.pg.given(0.5,0.5); 
+		var p2 = this.pg.given(0.5,0.05); 
+		var p3 = this.pg.given(0.5,0.1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
+
+		var pA = this.pg.addParametricPoint(c2, t*1.1); 
+		var pB = this.pg.addParametricPoint(c3, t*.9); 
+
+		var l1 = this.subdivide(5, pA, pB);
+	},
+
+
 
 
 
@@ -251,6 +348,62 @@ prMachines.prototype = {
 	},
 	// triAcrossLine: use  hex
 
+
+
+	sublimeTriangleFromLong: function(p1, p2, pAbove) { 
+		var gr = this.goldenRatio(p1,p2,pAbove);
+		gr["P3"] = this.pg.first(gr.CG, gr.C2, pAbove); 
+		// Fie, Javascript! Thou host and font of barbarism! 
+		return gr;
+	},
+	sublimeTriangleFromLong_test: function(t) { 
+//		var pA = this.pg.given(0.5,0.5); 
+//		var pB = this.pg.given(0.5,0.2); 
+//		var pC = this.pg.given(0.9,0.1); 
+
+		var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.43); 
+		var p2 = this.pg.given(0.5,0.36); 
+		var p3 = this.pg.given(0.5,0.07);
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
+
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
+		var md = this.sublimeTriangleFromLong(pA,pB,pC);
+	},
+
+
+
+	sublimeTriangleFromShort: function(p1, p2, pAbove) { 
+		var stl = this.sublimeTriangleFromLong(p1,p2,pAbove);
+		var ln13 = this.pg.line(stl.P3,p1);
+		var newP3 = this.pg.first(ln13,stl.LMid, pAbove);
+		stl["P4"] = stl.P3;
+		stl["P3"] = newP3;
+
+		return stl;
+	},
+	sublimeTriangleFromShort_test: function(t) { 
+//		var pA = this.pg.given(0.5,0.5); 
+//		var pB = this.pg.given(0.5,0.3); 
+//		var pC = this.pg.given(0.9,0.1); 
+
+		var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.43); 
+		var p2 = this.pg.given(0.5,0.36); 
+		var p3 = this.pg.given(0.5,0.07);
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
+
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
+		var md = this.sublimeTriangleFromShort(pA,pB,pC);
+	},
 
 
 
@@ -725,51 +878,44 @@ prMachines.prototype = {
 
 	// pentagon across line
 	// two points => pentagon using them as a side
-	pentagonAcrossLine: function(p1, p2, pAbove) {
-		var c1 = this.pg.circle(p1,p2);
-		var c2 = this.pg.circle(p2,p1);
-		var ln12 = this.pg.line(p1,p2); 
 
-		// get midpt
-		var pHi = this.pg.first(c1,c2, pAbove); 
-		var pLo = this.pg.second(c1,c2, pAbove); 
-		var midLn = this.pg.line(pHi, pLo); 
-		var center = this.pg.first(ln12, midLn, pAbove); 
-
-		// get perp lines from p1, p2
-		var p0 = this.pg.second(c1, ln12, p2); 
-		var p3 = this.pg.second(c2, ln12, p1);
-		var cP0 = this.pg.circle(p0,p2);
-		var cP1 = this.pg.circle(p1,p3);
-		var cP2 = this.pg.circle(p2,p0);
-		var cP3 = this.pg.circle(p3,p1);
-		var p1Hi = this.pg.first(cP0,cP2, pAbove);
-		var p2Hi = this.pg.first(cP1,cP3, pAbove);
-		var lnP1 = this.pg.line(p1, p1Hi); 
-		var lnP2 = this.pg.line(p2, p2Hi); 
-
-		// corners of square abve p1p2
-		var pSq1 = this.pg.first(lnP1, c1, pAbove); 
-		var pSq2 = this.pg.first(lnP2, c2, pAbove); 
-
-		// the meat!
-		var cPent = this.pg.circle(center, pSq1); 
-		var pG = this.pg.first(cPent, ln12, p1); 
-		var pH = this.pg.first(cPent, ln12, p2); 
-		var cG = this.pg.circle(p1,pH); 
-		var cH = this.pg.circle(p2,pG); 
-
-		var pPent3 = this.pg.first(cG, c2, pAbove); 
-		var pPent4 = this.pg.first(cG, cH, pAbove); 
-		var pPent5 = this.pg.first(cH, c1, pAbove); 
-
-		var res = { "P1":p1, "P2":p2, "P3":pPent3, "P4":pPent4, "P5":pPent5, "P0":center, 
-			"Ln12":ln12, "LnMid":midLn, "CPent":cPent
-		};
-		return res; 
+	pentagonAcrossLine: function(p1, p3, pAbove) {
+		var stl = this.sublimeTriangleFromLong(p1,p3,pAbove);
+//			"P1":p1, "P2":p2, "PG":pG, "CG":cRat,
+//			"PMid":midPt, "LMid":midLn, "CMid":cMid,
+//			"Perpendicular":perps.Perpendicular, "Connector":perps.Connector,
+//			"C1":c1, "C2":perps.C1, "Hypotenuse":hyp
+		var c5 = this.pg.circle(stl.P3, p1);
+		var pbis = this.pg.first(c5, stl.CG, p3);
+		var bLn = this.pg.line(p3, pbis); 
+		var p0 = this.pg.first(stl.LMid, bLn, pAbove);
+		var c0 = this.pg.circle(p0, p1);
+		var p2 = this.pg.first(stl.LMid,c0, stl.PMid);
+		var p4  = this.pg.second(c0, c5, p1);
+		stl["P5"] = stl.P3; 
+		stl["P4"] = p4; 
+		stl["P3"] = p3; 
+		stl["P2"] = p2; 
+		stl["P2"] = p2; 
+		stl["P0"] = p0; 
+		stl["C0"] = c0; // complex; many different circles available. 
+		return stl; 
 	},
 	pentagonAcrossLine_test: function(t) { 
-//		var md = this.pentagonAcrossLine(pA, pB, pC); 
+//		var pA = this.pg.given(0.5,0.5); 
+//		var pB = this.pg.given(0.5,0.2); 
+//		var pC = this.pg.given(0.9,0.1); 
+		var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.43); 
+		var p2 = this.pg.given(0.5,0.36); 
+		var p3 = this.pg.given(0.5,0.07);
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
+		var md = this.pentagonAcrossLine(pA,pB,pC);
 	},
 
 
@@ -899,6 +1045,28 @@ prMachines.prototype = {
 	},
 
 
+	// given two points, hexagon with opposite corners through those points
+	hexagonAcrossLine2: function(p1, p4,pAbove) {
+		var mids = this.midpoint(p1,p4,pAbove); 
+		var midPt = mids.MidPoint; 
+		return this.hexagonInCircle(midPt, p1, pAbove); 
+	},
+	hexagonAcrossLine2_test: function(t) { 
+		var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.3); 
+		var p2 = this.pg.given(0.5,0.333); 
+		var p3 = this.pg.given(0.5,0.1666);
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
+
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
+		var md = this.hexagonAcrossLine2(pA,pB,pC);
+	},
+
+
 
 
 
@@ -906,6 +1074,7 @@ prMachines.prototype = {
 	/////////////////////// heptagons
 	/////////////////////// heptagons
 	// construction by John Mitchel, as shown in Jon Allen's "Construction Geometry"
+	// "99.7%" accurate-- well, ok, till I find a better one, which I won't.
 	heptagonInCircle: function(p0, p360,pAbove) {
 		var perp = this.perpendicular(p0,p360, pAbove); 
 		var diameter180 = perp.Perpendicular;
@@ -960,13 +1129,131 @@ prMachines.prototype = {
 		var ln1 = this.pg.line(md.P7, md.P1);
 
 	},
+	/// you can use two points as corners
 
 
-	// doubler: given a circle, and a list of points on it, 
-	// return that list interspersed with the points halfway between them
 
-	// lines: given a list of points, make all the lines connecting consecutive points. 
 
+	/////////////////////// octagons
+	/////////////////////// octagons
+	/////////////////////// octagons
+
+
+	octagonInCircle: function(p0, p360,pAbove) {
+		var sqs = this.squareInCircle(p0, p360, pAbove); 
+//				"P1":p12, "P2":p3, "P3":p6, "P4":p9, 
+//				"C0":c0, "C1":c12, "L13":l1, "L24":crossLine
+		var c2 = this.pg.circle(sqs.P2, p0, pAbove); 
+		var c4 = this.pg.circle(sqs.P4, p0, pAbove); 
+		var p2out = this.pg.second(c2,sqs.C1,p0); 
+		var p8out = this.pg.second(c4,sqs.C1,p0);
+		var diam26 = this.pg.line(p0,p2out);  
+		var diam48 = this.pg.line(p0,p8out);  
+		var p2 = this.pg.first(sqs.C0, diam26, p2out);
+		var p6 = this.pg.second(sqs.C0, diam26, p2out);
+		var p8 = this.pg.first(sqs.C0, diam48, p8out);
+		var p4 = this.pg.second(sqs.C0, diam48, p8out);
+
+		var result = {
+				"P1":p360, "P2":p2, "P3":sqs.P2, "P4":p4, "P5":sqs.P3, "P6":p6, "P7":sqs.P4, "P8":p8, "P0":p0, 
+				"C0":sqs.C0, "C1":sqs.C1, "C2":c2, "C4":c4,  
+			};
+		return result;
+
+	},
+	octagonInCircle_test: function(t) { 
+		var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.43); 
+		var p2 = this.pg.given(0.5,0.36); 
+		var p3 = this.pg.given(0.5,0.07);
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
+
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
+		var md = this.octagonInCircle(pA,pB,pC);
+	},
+
+
+	octagonOnLine: function(p1,p2,pAbove) {
+		// pB=p1, pC=p2, pA=below p1  pD=above p2
+		// make two rows of points abcd and circles abcd
+		// big but straightforward
+		var pB = p1; 
+		var pC = p2; 
+		var cB = this.pg.circle(p1,p2); 
+		var cC = this.pg.circle(p2,p1); 
+		var connecter = this.pg.line(p1,p2);
+		var pA = this.pg.second(connecter, cB, pC); 
+		var pD = this.pg.second(connecter, cC, pA); 
+		var cA = this.pg.circle(pA, pB); 
+		var cD = this.pg.circle(pD, pC); 
+		var cBigA = this.pg.circle(pA, pC);
+		var cBigB = this.pg.circle(pB, pD);
+		var cBigC = this.pg.circle(pC, pA);
+		var cBigD = this.pg.circle(pD, pB);
+		var pHiB = this.pg.first(cBigA, cBigC, pAbove);
+		var pHiC = this.pg.first(cBigB, cBigD, pAbove);
+		var lPerpB = this.pg.line(pB, pHiB);
+		var lPerpC = this.pg.line(pC, pHiC);
+		// second row of points & circles has "Sq" in their names
+		var pSqB = this.pg.first(lPerpB, cB, pAbove); 
+		var pSqC = this.pg.first(lPerpC, cC, pAbove); 
+		var cSqB = this.pg.circle(pSqB, pB);
+		var cSqC = this.pg.circle(pSqC, pC);
+		var pSqA = this.pg.second(cA, cSqB, pB);
+		var pSqD = this.pg.second(cD, cSqC, pC);
+
+		var diagUpB = this.pg.line(pB, pSqC);
+		var diagUpC = this.pg.line(pC, pSqD);
+		var diagDnB = this.pg.line(pB, pSqA);
+		var diagDnC = this.pg.line(pC, pSqB);
+
+		var p3 = this.pg.first(cC, diagUpC, pSqD);
+		var p4 = this.pg.first(cSqC, diagUpB, pHiC);
+		var p8 = this.pg.first(cB, diagDnB, pSqA);
+		var p7 = this.pg.first(cSqB, diagDnC, pHiB);
+		var c4 = this.pg.circle(p4,p3); 
+		var c7 = this.pg.circle(p7,p8); 
+		var p5 = this.pg.first(c4, lPerpC, pHiC);
+		var p6 = this.pg.first(c7, lPerpB, pHiB);
+		var ln26 = this.pg.line(p2,p6); 
+		var ln15 = this.pg.line(p1,p5); 
+		var p0 = this.pg.first(ln26, ln15, pAbove); 
+		var	c0 = this.pg.circle(p0,p1);
+
+		var result = {
+				"P1":p1, "P2":p2, "P3":p3, "P4":p4, "P5":p5, "P6":p6, "P7":p7, "P8":p8, "P0":p0, 
+				"C0":cB, "C1":cC, "C4":c4, "C7":c7, "L1":connecter, "L2":diagUpC, "L8":diagDnB  
+			};
+		return result;
+	},
+	octagonOnLine_test: function(t) { 
+//		var pA = this.pg.given(0.5,0.5); 
+//		var pB = this.pg.given(0.5,0.4); 
+//		var pC = this.pg.given(0.9,0.1); 
+
+		var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.43); 
+		var p2 = this.pg.given(0.5,0.36); 
+		var p3 = this.pg.given(0.5,0.07);
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p0,p2); 
+		var c3 = this.pg.circle(p0,p3); 
+
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
+		var md = this.octagonOnLine(pA,pB,pC);
+	},
+
+
+	// correct 9-sided constructions are not known
+	// 10-sided = pentagon from orthogonal diagonals
+	// 11-sided not known
+	// 12-sided
 
 
 	/////////////////////// grids
@@ -1102,8 +1389,8 @@ prMachines.prototype = {
 			}
 		}
 		return res; 
-
 	}, 
+
 	gridFromThreePoints_test: function(t) {
 		var p0 = this.pg.given(0.5,0.5); 
 		var p1 = this.pg.given(0.5,0.47); 
@@ -1135,6 +1422,8 @@ prMachines.prototype = {
 	},
 	// given two points defining a circle, build a n-gon within the circle (for n=3,4,5,6,7,8,9)
 
+
+	// hexagonal grid!!
 
 	// given two points, give an ordered set of rectilinear grid points
 	// given three points, give an ordered set of non-rectilinear grid points

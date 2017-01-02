@@ -19,9 +19,13 @@
 		switch (toUse) {
 			case 0: theMachines.midpoint_test(t); break;
 			case 1: theMachines.perpendicular_test(t); break;
+			case 29: theMachines.goldenRatio_test(t); break;
 			case 2: theMachines.series_test(t); break;
 			case 3: theMachines.tangents_test(t); break;
 			case 4: theMachines.angleBisection_test(t); break;
+			case 28: theMachines.subdivide_test(t); break;
+			case 30: theMachines.sublimeTriangleFromLong_test(t); break;
+			case 31: theMachines.sublimeTriangleFromShort_test(t); break;
 
 			case 5: theMachines.squareInCircle_test(t); break;
 			case 6: theMachines.squareOnLine_test(t); break;
@@ -40,16 +44,13 @@
 			case 15: theMachines.hexagonInCircle_test(t); break;
 			case 16: theMachines.hexagonOnLine_test(t); break;
 			case 17: theMachines.hexagonAcrossLine_test(t); break;			
-			case 18: theMachines.hexagonAcrossLineII_test(t); break;
+			case 18: theMachines.hexagonAcrossLine2_test(t); break;
 			
 			case 19: theMachines.heptagonInCircle_test(t); break;
 			case 20: theMachines.heptagonOnLine_test(t); break;
 
 			case 21: theMachines.octagonInCircle_test(t); break;
 			case 22: theMachines.octagonOnLine_test(t); break;
-
-			case 23: theMachines.nonagonInCircle_test(t); break;
-			case 24: theMachines.decaagonOnLine_test(t); break;
 			
 			case 25: theMachines.gridFromTwoPoints_test(t); break;
 			case 26: theMachines.gridFromThreePoints_test(t); break;
@@ -95,10 +96,12 @@
     Select machine:<select id='machineSelect' onchange="setParameters()">
             <option value='0'>midpoint</option>
             <option value='1'>perpendicular</option>
+            <option value='29'>golden ratio on a line</option>
             <option value='2'>series</option>
             <option value='3'>tangents to a circle from a point</option>
             <option value='4'>bisection of angle</option>
-
+            <option value='30'>sublime triangle from long side</option>
+            <option value='31'>sublime triangle from short side</option>
             <option value='5'>square in circle</option>
             <option value='6'>square on line</option>
             <option value='7'>square across line</option>
@@ -124,12 +127,8 @@
             <option value='21'>octagon in circle</option>
             <option value='22'>octagon on line</option>
 
-            <option value='23'>nontagon in circle</option>
-            <option value='24'>nontagon on line</option>
-
             <option value='25'>rectilinear grid</option>
             <option value='26'>parallelogram grid</option>
-            <option value='27'>polygon doubler</option>
 
             </select>
     	<!--<button onclick="setParameters();" href="javascript:;">Go</button> -->
