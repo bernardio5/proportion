@@ -11,10 +11,8 @@
 		var theCanvas = document.getElementById("sampleCanvas");
 		var theContext = theCanvas.getContext("2d");
 	
-		theContext.strokeStyle = "#000";
-	
 		// make a proportion "page" for drawing into
-		theP = new prPage(theContext, "#ffffff"); 
+		theP = new prPage(theContext); 
 		
 		// add four points that define two lines that cross. 
 		var p1 = theP.addGivenPoint(.2, .2); 
@@ -38,9 +36,7 @@
 	
 		var p7 = theP.addFirstIntersection(c1, c2, p3); // oo! There it is again. 
 		// draw the figure
-		theContext.beginPath(); 
-		theP.trace();
-		theContext.stroke(); 
+		theP.redraw();
 	}
 
 

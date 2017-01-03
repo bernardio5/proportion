@@ -12,10 +12,10 @@
 	// this function gets called once every 50 milliseconds (== 20 times/sec)
 	function animator() {
 		frame += 1; // add 1 to the frame counter; 
-			
-		// start with nothing on the page each frame-- erase everything
-		theP.clear();
 		
+		// empty out the drawing.
+		theP.clear(); 
+
 		// add three points
 		var p1 = theP.addGivenPoint(.2, .2);   // upper left
 		var p2 = theP.addGivenPoint(.8, .2);   // upper right
@@ -33,9 +33,7 @@
 		var paraC = theP.addCircle(paraA, p2); 
 
 		// draw the figure
-		theContext.beginPath();
-		theP.trace();
-		theContext.stroke(); 
+		theP.redraw();
 	}
 	
 	
@@ -45,9 +43,8 @@
 		theContext = theCanvas.getContext("2d");
 		
 		frame = 0; // set the frame counter
-		theContext.strokeStyle = "#000";
 	
-		theP = new prPage(theContext, "#ffffff");  // make the page
+		theP = new prPage(theContext);  // make the page
 		setInterval(animator, 50);  // tell JavaScript to call the "animator" function every 50 milliseconds
 	}
 

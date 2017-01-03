@@ -1,64 +1,43 @@
 <!DOCTYPE html >
 <head>
-<title>Proportion/tutorial</title>
+<title>Proportion/examples</title>
 <link rel="stylesheet" href="../styles.css">
 <script type="text/javascript" src="../proportion.js"></script>  
 <script type="text/javascript">
 	var frame = 0; 
-	var theP;
-	var theC; 
+	var theP; 
 	
     
-    function testcode() { 
-		var theCanvas = document.getElementById("sampleCanvas");
-		var theC = theCanvas.getContext("2d");
-	
-		theC.strokeStyle = "#000";
-	
+    function animator() { 		
 		// make a proportion "page" for drawing into
 		theP.clear(); 
-		
+		theP.setCurrentGroup(2); 
 		// add four points that define two lines that cross. 
-		var p1 = theP.addGivenPoint(.333, .333); 
-		var p2 = theP.addGivenPoint(.333, .666); 
-		var p3 = theP.addGivenPoint(.666, .333); 
-		var p4 = theP.addGivenPoint(.666, .666); 
+		var p1 = theP.given(.333, .333); 
+		var p2 = theP.given(.333, .666); 
+		var p3 = theP.given(.666, .333); 
+		var p4 = theP.given(.666, .666); 
 	
 		// add two lines and a circle
-		var ln1 = theP.addLine(p1, p2); 
-		var ln2 = theP.addLine(p3, p4); 
+		var ln1 = theP.line(p1, p2); 
+		var ln2 = theP.line(p3, p4); 
 		var c1 = theP.addCircle(p4, p3); 
 		var c2 = theP.addCircle(p4, p1); 
 		
-		var s1 = theP.addSegment(ln1, 0, 1); 
-		var s2 = theP.addSegment(ln2, 0, 1); 
-		var a1 = theP.addArc(c1, 0.5, .75); 
-		var a2 = theP.addArc(c2, 0.5, .75); 
-		theP.setGroup(s1, 1); 
-		theP.setGroup(s2, 1); 
-		theP.setGroup(a1, 1); 
+		var s1 = theP.segment(ln1, 0, 1); 
+		var s2 = theP.segment(ln2, 0, 1); 
+		var a1 = theP.arc(c1, 0.5, .75); 
+		var a2 = theP.arc(c2, 0.5, .75); 
 		
-		
-		// use two sets of "beginPath" and "stroke" calls to use two colors
-		theC.beginPath();
-		theC.strokeStyle = "#d77";
-		theP.trace(); // draw everything pink and faint
-		theC.stroke();
-		
-		theC.beginPath(); 
-		theC.strokeStyle = "#000";
-		theP.traceGroup(1); // draw the rect and the spiral black and bold
-		theC.stroke(); 
-		
-		theC.fillStyle = "#eef";
-		theP.loft(s2, s1); 		
-		
-		theC.fillStyle = "#77f";
-		theP.loft(a1, s2); 
+		theP.redraw(); 
 
-		theC.fillStyle = "#7f9";
-		theP.loft(a1, a2); 
-
+		// Lofting and drawing are different operations. 
+		// Lofting does not add to or modify the contents of the page. 
+		theP.loft(s2, s1, "#eef"); 
+		theP.loft(a1, s2, "#77f"); 
+		theP.loft(a1, a2, "#7f9"); 
+		// so, make the construction, then fill in parts. 
+		// this ok?
 
 		++frame;
 		if (frame>200) { frame = 0; }
@@ -68,12 +47,12 @@
 	
 	function redraw() { 
 		var c_canvas = document.getElementById("sampleCanvas");
-		theC = c_canvas.getContext("2d");
+		var theC = c_canvas.getContext("2d");
 		
-		theC.fillStyle = 'white';
-		theC.strokeStyle = "#000";
-		theP = new prPage(theC,"#ffffff"); 
-		setInterval(testcode, 20); 
+		theP = new prPage(theC);
+		theP.setGroupColor(2, "#f99"); // orangey
+ 
+		setInterval(animator, 20); 
 	}
 
 
@@ -86,7 +65,7 @@
    	<div class="left"> <a href="index.html"><img src="../icon.jpg" alt="workly.com" /></a> 
     	</div>
     <div class="right">
-        Proportion tutorial: first lofting.
+        Proportion examples: lofting.
         </div>
         
     <div class="clear"></div>

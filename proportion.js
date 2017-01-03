@@ -19,12 +19,6 @@
 // and if the canvas size changes, ... 
 
 
-
-
-// More below. Love, Neal  
-
-
-
 //////////////////////////////////// 
 // constant definitions / enum ts
 // allowed values for "t"
@@ -42,7 +36,8 @@ const PR_E = 0.000000025; // the number that is basically zero
 const PR_2P = 6.28318530272959; // Math.PI * 2
 
 
-/////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+
 // prBase: prPages have an array of points, lines and circles: prBase
 
 function prBase() { 
@@ -858,9 +853,8 @@ function redraw() {
 
 
 
-function prPage(context, bgColor) { 
+function prPage(context) { 
 	this.cx = context;
-	this.bg = bgColor;
 	this.cxw = context.canvas.width;
 	this.cxh = context.canvas.height;
 	
@@ -872,12 +866,52 @@ function prPage(context, bgColor) {
 	// iteration through grouped objs
 	this.itC = 0; // index of last returned thing in objs[]
 	this.itG = 0; // group being iterated over
+
+	// all prBase have a group number. the group number should 
+	// for pt, line, circle, segment & arc, it's the line color
+	this.groupColors = [];
+	this.groupColors[0] = "#fff"; // 0 is the background group
+	this.groupColors[1] = "#000";
+	this.currentGroup = 1; // new prBase are given this group number.
 }
 
 
 
+prPage.prototype.setGroupColor = function(group, color) {
+	this.groupColors[group] = color;
+}
 
+prPage.prototype.setPageColor = function(group, color) {
+	this.groupColors[0] = color;
+}
 
+prPage.prototype.setCurrentGroup = function(group) {
+	this.currentGroup = group; 
+}
+
+prPage.prototype.redraw = function() {
+	var i, j, gc, objCt, ob; 
+	gc = this.groupColors.length; // group count
+	objCt = this.objCount;  
+
+	// erase
+	this.cx.fillStyle = this.groupColors[0];
+	this.cx.beginPath();
+	this.cx.rect(0,0, this.cxw, this.cxh);
+	this.cx.fill();
+
+	for (i=1; i<gc; i=i+1) { // for each group; group 0=not drawn
+		this.cx.strokeStyle = this.groupColors[i];
+		this.cx.beginPath();
+		for (j=1; j<objCt; j=j+1) { 
+			ob = this.objs[j]; 
+			if ((ob.g===i)&&(ob.t!=PR_N)) { // can't draw NULL
+				this.objs[j].tr(this.cx);
+			}
+		}
+		this.cx.stroke(); 
+	}
+}
 
 
 /////////////////////// convenience
@@ -900,14 +934,6 @@ prPage.prototype.copy = function(it) {
 prPage.prototype.clear = function() {
 	this.objCount = 1;
 	this.iteratorCounter = 0;
-	
-	this.cxw = this.cx.canvas.width; 
-	this.cxh = this.cx.canvas.height; 
-	
-	this.cx.fillStyle = this.bg;
-	this.cx.beginPath();
-	this.cx.rect(0,0, this.cxw, this.cxh);
-	this.cx.fill();
 }
 
 
@@ -932,81 +958,13 @@ prPage.prototype.echo = function() {
 }
 
 
-prPage.prototype.echoOne =  function( which) {
+prPage.prototype.echoOne =  function(which) {
 	var i=0;
 	if ((which>0)&&(which<this.objCount)) {
 		this.objs[which].ec(which + ":") ;
 	}
 }
 
-
-prPage.prototype.trace = function() {
-	var i=0; 
-	for (i=0; i<this.objCount; ++i) {
-		this.objs[i].tr(this.cx);
-	}
-}
-
-
-prPage.prototype.traceOne = function(which) {
-	if ((which>0)&&(which<this.objCount)) {
-		this.objs[which].tr(this.cx) ;
-		//if (withLabel==1) {
-		//	this.objs[which].label(labelWidth, which);
-		//}
-	}
-}
-
-
-
-
-/////////////////////// group manipulations
-// draw all the objects in "which" group
-prPage.prototype.traceGroup = function(which) {
-	for (var i=0; i<this.objCount; ++i) { 
-		if (this.objs[i].g == which) { 
-			this.objs[i].tr(this.cx) ;
-		}
-	}
-}
-
-
-prPage.prototype.setGroup = function(which,  val) {
-	if ((which>0)&&(which<this.objCount)) {
-		this.objs[which].g = val;
-	}
-}
-
-
-// init iteration over members of a group
-prPage.prototype.startGroup = function(which) { 
-	this.iteratorCounter = 0; 
-	this.iteratorTag = which; 
-}
-
-
-// call this until it returns 0
-prPage.prototype.nextGroupMember = function() { 
-	var ct = this.iteratorCounter; 
-	while ((ct<this.objectCtr)||(this.objs[ct].g!=this.iteratorTag)) { 
-		++ct; 
-	}
-	this.iteratorCtr = ct; 
-	if (ct>=this.objectCtr) { 
-		ct = 0;
-	} 
-	return ct;
-}
-
-
-// erase all the members of "which" group
-prPage.prototype.clearGroup = function( which) {
-	for (var i=0; i<this.objCount; ++i) { 
-		if (this.objs[i].g == which) { 
-			this.objs[i].cl();
-		}
-	}
-}
 
 
 
@@ -1017,7 +975,7 @@ prPage.prototype.clearGroup = function( which) {
 prPage.prototype.isAPoint = function(ob) { 
 	var res = 0;
 	if ((0<ob)&&(ob<this.objCount)) {  // 0<ob<objCount
-		if (this.objs[ob]) {  // there is an obj at objs[ob]   // was (ob in this.objs), but that's the wrong test? 
+		if (this.objs[ob]) {  // there is an obj at objs[ob]    
 			if (this.objs[ob].t==PR_P) { // is a point
 				res = 1;
 			}
@@ -1028,7 +986,7 @@ prPage.prototype.isAPoint = function(ob) {
 prPage.prototype.isALine = function(ob) { 
 	var res = 0;
 	if ((0<ob)&&(ob<this.objCount)) {  // 0<ob<objCount
-		if (this.objs[ob]) {  // there is an obj at objs[ob]   // was (ob in this.objs), but that's the wrong test? 
+		if (this.objs[ob]) {  // there is an obj at objs[ob]  
 			if (this.objs[ob].t==PR_L) { // is a line
 				res = 1;
 			}
@@ -1039,7 +997,7 @@ prPage.prototype.isALine = function(ob) {
 prPage.prototype.isACircle = function(ob) { 
 	var res = 0;
 	if ((0<ob)&&(ob<this.objCount)) {  // 0<ob<objCount
-		if (this.objs[ob]) {  // there is an obj at objs[ob]   // was (ob in this.objs), but that's the wrong test? 
+		if (this.objs[ob]) {  // there is an obj at objs[ob]  
 			if (this.objs[ob].t==PR_C) { // is a circle
 				res = 1;
 			}
@@ -1050,7 +1008,7 @@ prPage.prototype.isACircle = function(ob) {
 prPage.prototype.isASegment= function(ob) { 
 	var res = 0;
 	if ((0<ob)&&(ob<this.objCount)) {  // 0<ob<objCount
-		if (this.objs[ob]) {  // there is an obj at objs[ob]   // was (ob in this.objs), but that's the wrong test? 
+		if (this.objs[ob]) {  // there is an obj at objs[ob]   
 			if (this.objs[ob].t==PR_S) { // is a segment
 				res = 1;
 			}
@@ -1061,7 +1019,7 @@ prPage.prototype.isASegment= function(ob) {
 prPage.prototype.isAnArc= function(ob) { 
 	var res = 0;
 	if ((0<ob)&&(ob<this.objCount)) {  // 0<ob<objCount
-		if (this.objs[ob]) {  // there is an obj at objs[ob]   // was (ob in this.objs), but that's the wrong test? 
+		if (this.objs[ob]) {  // there is an obj at objs[ob]  
 			if (this.objs[ob].t==PR_A) { // is an arc
 				res = 1;
 			}
@@ -1072,7 +1030,7 @@ prPage.prototype.isAnArc= function(ob) {
 prPage.prototype.isAnObject= function(ob) { 
 	var res = 0;
 	if ((0<ob)&&(ob<this.objCount)) {  // 0<ob<objCount
-		if (this.objs[ob]) {  // there is an obj at objs[ob]   // was (ob in this.objs), but that's the wrong test? 
+		if (this.objs[ob]) {  // there is an obj at objs[ob]   
 			res = 1;
 		}
 	}
@@ -1083,34 +1041,36 @@ prPage.prototype.isAnObject= function(ob) {
 
 // you won't need to add NULL; it's always objs[0]
 // to add given lines, add given points, and then draw lines through them
-prPage.prototype.addGivenPoint = function(x, y) {
+prPage.prototype.given = function(x, y) {
     var res = this.objCount; // Rudy: can't fail!
     this.objs[res] = new prBase(); 
 	this.objs[res].saP(x* this.cxw, y*this.cxh); 
+	this.objs[res].g = this.currentGroup;
 	++this.objCount; 
 	return res;
 }
-prPage.prototype.given = prPage.prototype.addGivenPoint; 
-prPage.prototype.point = prPage.prototype.addGivenPoint; 
+prPage.prototype.addGivenPoint = prPage.prototype.given; 
+prPage.prototype.point = prPage.prototype.given; 
 
 
 // two points only.
-prPage.prototype.addLine = function(ob1, ob2) {
+prPage.prototype.line = function(ob1, ob2) {
 	var res = this.objCount;
 	if (this.isAPoint(ob1)==0) { console.log("addLine: argument 1 is not a point"); res=0; }
 	if (this.isAPoint(ob2)==0) { console.log("addLine: argument 2 is not a point"); res=0; }
 	if (res===this.objCount) {
 		this.objs[res] = new prBase;
 		this.objs[res].saL(this.objs[ob1].x, this.objs[ob1].y, this.objs[ob2].x, this.objs[ob2].y);
+		this.objs[res].g = this.currentGroup;
 		++this.objCount;
 	}
 	return res;
 }
-prPage.prototype.line = prPage.prototype.addLine; 
+prPage.prototype.addLine = prPage.prototype.line; 
 
 
 // two points only.
-prPage.prototype.addCircle = function(ob1, ob2) {
+prPage.prototype.circle = function(ob1, ob2) {
 	var res = this.objCount;
 	if (this.isAPoint(ob1)==0) { console.log("addCircle: argument 1 is not a point"); res=0; }
 	if (this.isAPoint(ob2)==0) { console.log("addCircle: argument 2 is not a point"); res=0; }
@@ -1118,41 +1078,44 @@ prPage.prototype.addCircle = function(ob1, ob2) {
 	if (res===this.objCount) {
 		this.objs[this.objCount] = new prBase;
 		this.objs[this.objCount].saC(this.objs[ob1].x, this.objs[ob1].y, this.objs[ob2].x, this.objs[ob2].y);
+		this.objs[res].g = this.currentGroup;
 		++this.objCount;
 	}
 	return res;
 }
-prPage.prototype.circle = prPage.prototype.addCircle; 
+prPage.prototype.addCircle = prPage.prototype.circle; 
 
 
 // line plus p1p2
-prPage.prototype.addSegment = function(ob, t1in, t2in) {
+prPage.prototype.segment = function(ob, t1in, t2in) {
 	var res = this.objCount; 
 	if (this.isALine(ob)==0) { console.log("addSegment: argument 1 is not a line"); res=0; }
 	if (res===this.objCount) {  // 0<ob<objCount
 		res = this.objCount;
 		this.objs[res] = new prBase;
 		this.objs[res].saS(this.objs[ob], t1in, t2in);
+		this.objs[res].g = this.currentGroup;
 		++this.objCount;
 	}
 	return res;
 }
-prPage.prototype.segment = prPage.prototype.addSegment;
+prPage.prototype.addSegment = prPage.prototype.segment;
 
 
 // circle plus p1p2
-prPage.prototype.addArc = function(ob, t1in, t2in) {
+prPage.prototype.arc = function(ob, t1in, t2in) {
 	var res = this.objCount; 
 	if (this.isACircle(ob)==0) { console.log("addArc: argument 1 is not a circle"); res=0; }
 	if (res===this.objCount) {  // 0<ob<objCount
 		res = this.objCount;
 		this.objs[res] = new prBase;
 		this.objs[res].saA(this.objs[ob], t1in, t2in);
+		this.objs[res].g = this.currentGroup;
 		++this.objCount;
 	}
 	return res;
 }
-prPage.prototype.arc = prPage.prototype.addArc;
+prPage.prototype.addArc = prPage.prototype.arc;
 
 
 
@@ -1161,7 +1124,7 @@ prPage.prototype.arc = prPage.prototype.addArc;
 // the "first" one is the one "closest" to target.
 // returns the point of intersection not returned by cI.
 // can also return NULL.
-prPage.prototype.addFirstIntersection = function( ob1,  ob2,  target) {
+prPage.prototype.first = function( ob1,  ob2,  target) {
 	var res = this.objCount; 
 	if (this.isAnObject(ob1)==0) { console.log("addFirstIntersection: argument 1 is not intersectable"); res=0; }
 	if (this.isAnObject(ob2)==0) { console.log("addFirstIntersection: argument 2 is not intersectable"); res=0; }
@@ -1169,6 +1132,7 @@ prPage.prototype.addFirstIntersection = function( ob1,  ob2,  target) {
 	if (res===this.objCount) { 
 		this.objs[res] = new prBase;
 		this.objs[res].saFI(this.objs[ob1], this.objs[ob2], this.objs[target]);
+		this.objs[res].g = this.currentGroup;
 		if (this.objs[res].t===PR_N) {
 			res = 0; 
 		} else { 
@@ -1178,10 +1142,10 @@ prPage.prototype.addFirstIntersection = function( ob1,  ob2,  target) {
 	// whichever is closer, add that to the figure.
 	return res;
 }
-prPage.prototype.first = prPage.prototype.addFirstIntersection;
+prPage.prototype.addFirstIntersection = prPage.prototype.first;
 
 
-prPage.prototype.addSecondIntersection = function( ob1,  ob2,  target) {
+prPage.prototype.second = function( ob1,  ob2,  target) {
 	var res = this.objCount; 
 	if (this.isAnObject(ob1)==0) { console.log("addSecondIntersection: argument 1 is not intersectable"); res=0; }
 	if (this.isAnObject(ob2)==0) { console.log("addSecondIntersection: argument 2 is not intersectable"); res=0; }
@@ -1189,6 +1153,7 @@ prPage.prototype.addSecondIntersection = function( ob1,  ob2,  target) {
 	if (res===this.objCount) { 
 		this.objs[res] = new prBase;
 		this.objs[res].saSI(this.objs[ob1], this.objs[ob2], this.objs[target]);
+		this.objs[res].g = this.currentGroup;
 		if (this.objs[res].t===PR_N) {
 			res = 0; 
 		} else { 
@@ -1198,16 +1163,17 @@ prPage.prototype.addSecondIntersection = function( ob1,  ob2,  target) {
 	// whichever is closer, add that to the figure.
 	return res;
 }
-prPage.prototype.second = prPage.prototype.addSecondIntersection;
+prPage.prototype.addSecondIntersection = prPage.prototype.second;
 
 
 // points on lines or circles-- an abuse? Euclid did not have this.
-prPage.prototype.addParametricPoint = function( obj,  t) {
+prPage.prototype.parametric = function( obj,  t) {
 	var res = this.objCount; 
 	if (this.isAnObject(obj)==0) { console.log("addParametricPoint: argument 1 is not intersectable"); res=0; }
 	if (res===this.objCount) { 
 		this.objs[res] = new prBase;
 		this.objs[res].saPm(this.objs[obj], t);
+		this.objs[res].g = this.currentGroup;
 		if (this.objs[res].t===PR_N) {
 			res = 0; 
 		} else { 
@@ -1216,7 +1182,7 @@ prPage.prototype.addParametricPoint = function( obj,  t) {
 	}
 	return res;
 }
-prPage.prototype.parametric = prPage.prototype.addParametricPoint;
+prPage.prototype.addParametricPoint = prPage.prototype.parametric;
 
 
 prPage.prototype.closestPointParam = function(obj, pt) {
@@ -1229,69 +1195,14 @@ prPage.prototype.getBase= function ( which) {
 }
 
 
-// starting with the base objects, 
-prPage.prototype.addInitialFigure = function ( xin,  yin,  win,  hin) {
-	var p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, c1, c2, c3; 
-    var c4, c5, c6, c7, c8, l1, l2, l3, l4;  
-	this.clear();
-	p1 = this.addGivenPoint(xin, yin);     		// 1: origin
-	p2 = this.addGivenPoint(xin+win, yin);   	// 2: pt at origin+(w,0)
-	p3 = this.addGivenPoint(xin+hin, yin);   	// 3: pt at origin+(h,0);
-	l1 = this.addLine(p1, p2);               	// 4: top margin
-	c1 = this.addCircle(p1, p2);             	// 5
-	c2 = this.addCircle(p1, p3);             	// 6
-	p4 = this.addSecondIntersection(c1, l1, p2);// 7
-	c3 = this.addCircle(p4, p2);             	// 8
-	c4 = this.addCircle(p2, p4);             	// 9
-	p5 = this.addSecondIntersection(c3, c4, p1);//10:
-	l2 = this.addLine(p1, p5);               	//11: left margin
-	p6 = this.addSecondIntersection(c1, l2, p4);    //12: bottom-left of square
-	p7 = this.addFirstIntersection(c2, l2, p6);    //13: bottom-left of page
-	c5 = this.addCircle(p2, p1);             	//14
-	c6 = this.addCircle(p6, p1);             	//15
-	p8 = this.addFirstIntersection(c5, c6, p5); //16: bottom-right of square
-	l3 = this.addLine(p2, p8);                	//17: right margin
-	c7 = this.addCircle(p3, p1);             	//18
-	c8 = this.addCircle(p7, p1);             	//19
-	p9 = this.addSecondIntersection(c7, c8, p1); //20:
-	l4 = this.addLine(p7, p9);                	//21: bottom margin
-	p10= this.addFirstIntersection(l4, l3, p9); //22: bottom-right of page
-}
-
-
-
-/*      test code
-float t; 
-prFigure tf; 
-
-void setup() {
-	size(800, 800); 
-	stroke(0, 0, 0);
-	noFill(); 
-	t = 0; 
-	
-	tf = new geoFigure(); 
-	tf.addInitialFigure(300, 300, 200, 200); 
-	tf.trace(); 
-	tf.echo(); 
-}
-
-void draw() {
-	t+=0.1;
-	background(204); 
-	tf.addInitialFigure(300,300,200, 200+(100*sin(t*0.1))); 
-	tf.trace(); 
-}
-*/
-
-
-
 // given two marks, loft between them
-prPage.prototype.loft = function(m1in, m2in) {
+// the other fucntions modify the page; this one just draws.
+prPage.prototype.loft = function(m1in, m2in, color) {
 	var m1, m2, dt1, dt2, bt1, bt2, t1, t2, dt, sc; 
 	m1 = new prBase; 
 	m2 = new prBase; 
-	
+
+	this.cx.fillStyle = color;	
 	m1.cp(this.objs[m1in]); 
 	m2.cp(this.objs[m2in]); 
 	

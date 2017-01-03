@@ -4,10 +4,7 @@
 <link rel="stylesheet" href="../styles.css">
 <script type="text/javascript" src="../proportion.js"></script>
 <script type="text/javascript">
-	
-	var frame = 0; 
-	var theP;
-	var theC; 
+	var theP, frame = 0; 
 	
 	function testcode() { 
 		var a, b; 
@@ -49,16 +46,9 @@
 		//var t3 = theP.closestPointParam(ln5, p1); 
 		//var p9 = theP.addParametricPoint(ln5, t3); 
 		
-		// use two sets of "beginPath" and "stroke" calls to use two colors
-		theC.beginPath();
-		theC.strokeStyle = "#000";
-		theP.trace(); // draw everything pink and faint
-		theC.stroke();
-		
-		theC.fillStyle = "#88f";
-		theP.loft(s1, s2); 
-		theC.fillStyle = "#f88";
-		theP.loft(s3, s4); 
+		theP.redraw(); // draw everything pink and faint		
+		theP.loft(s1, s2, "#88f"); 
+		theP.loft(s3, s4, "#f88"); 
 		
 		++frame;
 		if (frame>200) { frame = 0; }
@@ -70,9 +60,8 @@
 		var c_canvas = document.getElementById("sampleCanvas");
 		theC = c_canvas.getContext("2d");
 		
-		theC.fillStyle = 'white';
-		theC.strokeStyle = "#000";
-		theP = new prPage(theC,"#ffffff"); 
+		theP = new prPage(theC); 
+		theP.setGroupColor(2, "#ccc");
 		setInterval(testcode, 20); 
 	}
 

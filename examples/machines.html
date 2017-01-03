@@ -11,7 +11,6 @@
         toUse = parseInt(document.getElementById('machineSelect').value);
 	}
 
-
 	function animator() {
 		t = t+0.005;
 		theP.clear();
@@ -59,9 +58,7 @@
 			default: break; 
 		}
 		
-		theContext.beginPath(); 
-		theP.trace();
-		theContext.stroke(); 
+		theP.redraw();
 	}
 	
 	
@@ -70,10 +67,7 @@
 		toUse = 0; 
 		var theCanvas = document.getElementById("sampleCanvas");
 		theContext = theCanvas.getContext("2d");
-		
-		theContext.fillStyle = 'white';
-		theContext.strokeStyle = "#000";
-	
+			
 		theP = new prPage(theContext); 
 		theMachines = new prMachines(theP); 
 		setInterval(animator, 50);  

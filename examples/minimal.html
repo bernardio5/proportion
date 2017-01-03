@@ -5,53 +5,28 @@
 
 	// this is the minimal working Proportion page. 
 
-	//return an obect with the dimension of the viewport of the browser
-	function getViewportDimension() {
-		var e = window, a = 'inner';
-		if (!( 'innerWidth' in window )) {
-			a = 'client';
-			e = document.documentElement || document.body;
-		}
-		return {w:e[a + 'Width'], h:e[a + 'Height']};
-	}
-
-	//apply the dimension to the canvas
 	// this routine gets called once when the page loads. 
 	function redraw() { 
-		var theCanvas = document.getElementById("sampleCanvas");
-		var dim = getViewportDimension(); // use this
-		theCanvas.width = dim.w-20;  // if the canvas fills the whole screen, 
-		theCanvas.height = dim.h-100;
-	
+		var theCanvas = document.getElementById("sampleCanvas");	
 		var theContext = theCanvas.getContext("2d");
-		
-		// set the drawing color to black
-		theContext.strokeStyle = "#000";
-	
+			
 		// the "prPage" object contains all of the proportion library's code.
 		// make one, and then send it commands to add figures to it and to tell it to draw them.
-		theP = new prPage(theContext, "#ffffff"); 
+		theP = new prPage(theContext); 
 		
-		// add three points; the function "addGivenPoint" returns an integer,
+		// add two points; the function "addGivenPoint" returns an integer,
 		//   which you will use with other functions to refer to the points
-		var p1 = theP.addGivenPoint(.2, .2);   // upper left
-		var p2 = theP.addGivenPoint(.8, .2);   // upper right
-		var p3 = theP.addGivenPoint(.2, .8);   // lower left
+		var p1 = theP.addGivenPoint(.5, .5);   // middle
+		var p2 = theP.addGivenPoint(.5, .2);   // upper right
 		
 		// add two lines; note that lines are specified by giving two points. 
 		var ln1 = theP.addLine(p1, p2); 
-		var ln2 = theP.addLine(p1, p3); 
 		
 		// add a circle by giving the center point and any point on the circumference. 
-		var c1 = theP.addCircle(p3, p1); 
+		var c1 = theP.addCircle(p2, p1); 
 		
 		// draw the figure
-		theContext.beginPath(); 
-		// the "trace" command tells the page to draw all of its stuff.
-		// trace does not modify the drawing state of the canvas, so "beginPath"
-		// and "stroke" are needed. prPage does not do anthing with stroke or fill styles, ever. 
-		theP.trace();
-		theContext.stroke(); 
+		theP.redraw(); 
 	}
 </script>
 

@@ -10,12 +10,9 @@
 	function redraw() { 
 		var theCanvas = document.getElementById("sampleCanvas");
 		var theContext = theCanvas.getContext("2d");
-	
-		// set the drawing color to black
-		theContext.strokeStyle = "#000";
-	
+		
 		// make a proportion "page" for drawing into
-		theP = new prPage(theContext, "#ffffff"); 
+		theP = new prPage(theContext); 
 		
 		// add three points; the function "addGivenPoint" returns an integer,
 		//   which you will use with other functions to refer to the points
@@ -33,9 +30,7 @@
 		var c1 = theP.addCircle(p3, p1); 
 		
 		// draw the figure
-		theContext.beginPath();
-		theP.trace();
-		theContext.stroke(); 
+		theP.redraw();
 	}
 
 

@@ -5,19 +5,12 @@
 <script type="text/javascript" src="../proportion.js"></script>  
 <script type="text/javascript">
 	var frame = 0; 
-	var theP;
-	var theC; 
+	var theP; 
 	
-    
-    function testcode() { 
-		var theCanvas = document.getElementById("sampleCanvas");
-		var theC = theCanvas.getContext("2d");
-	
-		theC.strokeStyle = "#000";
-	
+    function testcode() { 		
 		// make a proportion "page" for drawing into
 		theP.clear(); 
-		
+		theP.setCurrentGroup(2); 
 		// add four points that define two lines that cross. 
 		var p1 = theP.addGivenPoint(.25, .25); // three pts above
 		var p2 = theP.addGivenPoint(.5, .25); 
@@ -25,46 +18,34 @@
 		var p4 = theP.addGivenPoint(.25, .75); // three below
 		var p5 = theP.addGivenPoint(.5, .75); 
 		var p6 = theP.addGivenPoint(.75, .75); 
-		
-	
+			
 		// add three vertical lines
 		var ln1 = theP.addLine(p1, p4); // three lines, with p1 for each one top
 		var ln2 = theP.addLine(p2, p5); 
 		var ln3 = theP.addLine(p3, p6); 
 		
 		// add three vertical segments
+		theP.setCurrentGroup(1); 
 		var s1 = theP.addSegment(ln1, 0, 1); // two segments going top-to-bottom
 		var s2 = theP.addSegment(ln2, 0, 1); 
 		var s3 = theP.addSegment(ln3, 1, 0); // one going bottom to top.
 		
-		
-		// use two sets of "beginPath" and "stroke" calls to use two colors
-		theC.beginPath();
-		theC.strokeStyle = "#d77";
-		theP.trace(); // draw everything pink and faint
-		theC.stroke();
-
-		theC.fillStyle = "#77f";
-		theP.loft(s1, s2); 		
-		
-		theC.fillStyle = "#7f7";
-		theP.loft(s2, s3); 
-
-
+		theP.redraw(); 
+		theP.loft(s1, s2, "#77f"); 		
+		theP.loft(s2, s3, "#7f7"); 
 
 		++frame;
 		if (frame>200) { frame = 0; }
-	
 	}
 	
 	
 	function redraw() { 
 		var c_canvas = document.getElementById("sampleCanvas");
-		theC = c_canvas.getContext("2d");
+		var theC = c_canvas.getContext("2d");
 		
-		theC.fillStyle = 'white';
-		theC.strokeStyle = "#000";
-		theP = new prPage(theC,"#ffffff"); 
+		theP = new prPage(theC);
+		theP.setGroupColor(2, "#ccc"); // grey
+ 
 		setInterval(testcode, 20); 
 	}
 

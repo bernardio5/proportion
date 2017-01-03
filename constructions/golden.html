@@ -4,10 +4,7 @@
 <link rel="stylesheet" href="../styles.css">
 <script type="text/javascript" src="../proportion.js"></script>
 <script type="text/javascript">
-	
-	var frame = 0; 
-	var theP;
-	var theC; 
+	var theP, frame; 
 	
 	function testcode() { 
 		var a, b; 
@@ -72,24 +69,17 @@
 			var ln6 = theP.addLine(p13, p14); 
 		}
 		
-		
 		++frame;
 		if (frame>200) { frame = 0; }
-	
-		// draw the figure
-		theC.beginPath(); 
-		theP.trace(); 
-		theC.stroke(); 
+		theP.redraw(); 
 	}
 	
 	
 	function redraw() { 
 		var c_canvas = document.getElementById("sampleCanvas");
-		theC = c_canvas.getContext("2d");
-		
-		theC.fillStyle = 'white';
-		theC.strokeStyle = "#000";
-		theP = new prPage(theC, "#ffffff" ); 
+		var theC = c_canvas.getContext("2d");
+		frame = 0; 
+		theP = new prPage(theC); 
 		setInterval(testcode, 20); 
 	}
 

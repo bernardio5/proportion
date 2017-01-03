@@ -4,9 +4,7 @@
 <link rel="stylesheet" href="../styles.css">
 <script type="text/javascript" src="../proportion.js"></script> 
 <script type="text/javascript">
-	var frame; 
-	var theContext;  
-	var theP;  
+	var frame, theP;  
 	
 	function animator() {
 		var i; 
@@ -73,20 +71,15 @@
 		}
 			
 		
-		theContext.beginPath(); 
-		theP.trace();
-		theContext.stroke(); 
+		theP.redraw();
 	}
 	
 	
 	function startAnimation() { 
 		var theCanvas = document.getElementById("sampleCanvas");
-		theContext = theCanvas.getContext("2d");
-		
+		var theContext = theCanvas.getContext("2d");
 		frame = 0; 
-		theContext.strokeStyle = "#000";
-	
-		theP = new prPage(theContext, "#ffffff"); 
+		theP = new prPage(theContext); 
 		setInterval(animator, 50);  
 	}
 
