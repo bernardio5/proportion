@@ -1,9 +1,10 @@
 <!DOCTYPE html >
 <head>
-<title>Proportion/tutorial</title>
+<title>Proportion/examples</title>
 <link rel="stylesheet" href="../styles.css">
 <script type="text/javascript" src="../proportion.js"></script>
 <script type="text/javascript">
+	var theP, frame; 
 
 	function animator() {
 		frame += 1; 	
@@ -27,22 +28,17 @@
 		var lnproof = theP.addLine(pp1, pp3); 
 	
 		// draw the figure
-		theContext.beginPath();
-		theP.trace();
-		theContext.stroke(); 
+		theP.redraw();
 	}
 	
 	
 	// this routine gets called once when the page loads. 
 	function startAnimation() { 
 		var theCanvas = document.getElementById("sampleCanvas");
-		theContext = theCanvas.getContext("2d");
+		var theContext = theCanvas.getContext("2d");
 		
 		frame = 0; // set the frame counter
-		theContext.fillStyle = 'white';
-		theContext.strokeStyle = "#000";
-	
-		theP = new prPage(theContext, "#ffffff");  // make the page
+		theP = new prPage(theContext);  // make the page
 		setInterval(animator, 50);  // tell JavaScript to call the "animator" function every 50 milliseconds
 	}
 
@@ -54,7 +50,7 @@
    	<div class="left"> <a href="index.html"><img src="../icon.jpg" alt="workly.com" /></a> 
     	</div>
     <div class="right">
-        Proportion tutorial: Understanding the parameter values for parametric points.  
+        Proportion: understanding the parameter values for parametric points
         </div>
         
     <div class="clear"></div>

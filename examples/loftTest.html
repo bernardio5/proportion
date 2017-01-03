@@ -1,0 +1,83 @@
+<!DOCTYPE html >
+<head>
+<title>Proportion/examples</title>
+<link rel="stylesheet" href="../styles.css">
+<script type="text/javascript" src="../proportion.js"></script>  
+<script type="text/javascript">
+	var frame = 0; 
+	var theP; 
+	
+    function testcode() { 		
+		theP.clear(); 
+
+    	var t1 = frame/200.0; 
+		var t2 = frame/190.0; 
+		var t3 = frame/180.0 + 0.333; 
+		var t4 = frame/200.0 + 0.333; 
+		var t5 = frame/180.0 + 0.666; 
+		var t6 = frame/190.0 + 0.666; 
+
+		var p1 = theP.given(.5, .5); 
+		var p1a = theP.given(.6,.5); 
+		var p2 = theP.given(.5, .2); 
+		var p3 = theP.given(.5, .15); 
+		var p3a = theP.given(.6, .15); 
+		var p4 = theP.given(.5, .1); 
+
+		var c1 = theP.circle(p1,p2); 
+		var c2 = theP.circle(p1,p3); 
+		var c3 = theP.circle(p1,p4); 
+		var c4 = theP.circle(p1a,p3a); 
+			
+		var a1 = theP.arc(c4, t1, t2); 
+
+		var a2 = theP.arc(c2, t1, t2); 
+		var a3 = theP.arc(c3, t5, t6); 
+
+		var a4 = theP.arc(c2, t3, t4); 
+		var a5 = theP.arc(c3, t3, t4); 
+
+		theP.redraw(); 
+		theP.loft(a2, a3, "#7f7"); 
+		theP.loft(a4, a5, "#f77"); 
+		theP.loft(a1, a2, "#77f"); 		
+
+		++frame;
+	}
+	
+	
+	function redraw() { 
+		var c_canvas = document.getElementById("sampleCanvas");
+		var theC = c_canvas.getContext("2d");
+		theP = new prPage(theC); 
+		setInterval(testcode, 50); 
+	}
+
+
+
+</script>
+
+<body  onLoad="redraw();">
+<div class="container">
+  <div class="header">
+   	<div class="left"> <a href="index.html"><img src="../icon.jpg" alt="workly.com" /></a> 
+    	</div>
+    <div class="right">
+        Proportion: lofting errors from parameter direction.
+        </div>
+        
+    <div class="clear"></div>
+    </div> <!-- header--> 
+       
+ <div class="subCont">
+    	<canvas id="sampleCanvas" width="640" height="640"></canvas>
+    <div class = "subCont">
+    	<div class="codeBox">
+This page shows the use of arcs with lofting. It works well, until one or the other arc is positioned so that a point on one arc, not at the ends, is closer to the endpoints of the other arc than the other arc's endpoints. 
+
+TL;DR: keep the arcs pretty short, or make sure they're roughly concentric and well-matched. 
+	 	</div></div>    
+</div><!-- container -->
+
+</body>
+</html>
