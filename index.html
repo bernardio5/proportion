@@ -6,40 +6,30 @@
 <script type="text/javascript" src="prMachines.js"></script>
 <script type="text/javascript">
 	var theP, theMachines, t;  
-	
 	function animator() {
 		t = t+0.005;
 		theP.clear();
 		theMachines.completeParallelogram_test(t); 
 		theP.redraw();
 	}
-	
-	
 	function startAnimation() { 
 		t = 0.0;
 		var theCanvas = document.getElementById("sampleCanvas");
 		var theContext = theCanvas.getContext("2d");
-			
 		theP = new prPage(theContext); 
 		theMachines = new prMachines(theP); 
 		setInterval(animator, 50);  
 	}
-
 </script>
-
-
-
 </head>
-
 <body onLoad="startAnimation();">
 <div class="container">
-    
   <div class="subCont">
     <div class="left">
       <img src="examples/machines.jpg" width="128" height="128"/>
       </div><!-- left -->
     <div class="right">
-    	This is the home page for "Proportion", a JavaScript library for planar geometry and drafting. 
+    	This is the home page for "Proportion", a JavaScript library for geometry and drafting. 
        <br>
     	<a href="examples/index.html">Examples</a> ----
         <a href="constructions/index.html">Constructions</a> ---- 
@@ -49,13 +39,9 @@
       </div><!-- right -->
     <div class="clear"></div>
     </div><!-- subCont -->
-
     <div class="subCont">
     	<canvas id="sampleCanvas" width="640" height="640"></canvas>
-
    </div>
-    
 </div><!-- container -->
-
 </body>
 </html>

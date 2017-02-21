@@ -4,12 +4,15 @@
 // (c)2013 Neal McDonald, released under MIT License
 // Use it however you like; have a nice day.
 
-// There are three classes defined below: base, line, machine, and page. 
-// prBase encapsulates points, lines and circles, which are used to build figures, 
-//   and segments and arcs, which are used to fill in areas. 
+// There are two classes defined below: base and page. 
+// prBase objects can be points, lines, or circles, which are used to build figures, 
+//   or segments and arcs, which mark parts of lines or circles for drawing, 
+//   or lofts, which allow you fill areas of the drawing with color. 
+
+// The points, lines, and circles can interact. You can use points to define lines and circles, 
+// and intersect lines and circles to define points.
 
 // prPage provides the interface for the whole system, and contains all the prBase. 
-// machines are scripts. prPages load text files, convert the code in them to routines, 
 
 // coords: the page takes normalized coords; 0,0 is top-left, and 1,1 is bottom-right. 
 // canvas aspect ratio might impact construction success; caveat aedicicator. 
@@ -28,30 +31,39 @@ const PR_N = 0;  // null
 const PR_P = 1;  // point
 const PR_L = 2;  // line
 const PR_C = 3;  // circle
-const PR_T = 4;  // parameter -- a float, stored in t1 -- used?
 const PR_S = 5;  // segment -- part of a line
 const PR_A = 6;  // arc -- part of a circle
+const PR_F = 7;  // loft
 
 const PR_E = 0.000000025; // the number that is basically zero
 const PR_2P = 6.28318530272959; // Math.PI * 2
 
-
 ////////////////////////////////////////////////////////////
 
-// prBase: prPages have an array of points, lines and circles: prBase
+// prBase: prPages (below) have an array of points, lines and circles
+// I could make one object that represents all three, or have a base parent class...
 
 function prBase() { 
-	this.t = PR_N; 			// type: null, pt, line or circle? 
+	this.t = PR_N; 			// type: null, pt, line, circle, parameter, segment, arc, or loft  
 	this.x = 0.0;			// position of points, p1 of lines, centers of circles
 	this.y = 0.0;
     this.x2 = 0.0;			// unused for points. lines and circles are set by two points, A and B.
     this.y2 = 0.0;			// x2,y2 = A-B
-    this.r = 0.0;			// radius
+    this.r = 0.0;			// length of segments and lines, radius of arcs and circles
     this.g = 0;				// render group
-	this.t1 = 0.0; 			// parameters, for arcs and segments
-	this.t2 = 0.0; 			// start at t1, go to t2. parameter range if the reals. 
-	this.sc = 1.0; 			// step size for lofting. ==1 except for arcs; r*dt otherwise. 
+	this.p0 = 0.0; 			// arc scan start parameter 
+	this.dp = 0.01; 		// arc scanning parameter 
 }
+// t, r, and g are always used the same way
+// PR_N: nothing else is used
+// PR_P: (x,y) are coords
+// PR_L: (x,y) is one end, (x+x2,y+y2) is the other. r is distance between them
+// PR_C: (x,y) is the center, (x+x2,y+y2) is on the circle  
+// PR_S: a mark! copies a line, xy, x2y2 give the endpoints, and the parameter is 0-1
+// PR_A: a mark! as circles, but "dp" gives the parameter going around the arc
+//    scan with t going 0-1, points of arc given by x,y+(rcos(p0+t*dp),rsin(p1+t*dp))
+//    for lofting, vary t by 1/r?
+// PR_F: x=one mark's index into a page, y=other mark. 
 
 
 prBase.prototype.cp = function (it) {  // "copy" function
@@ -62,9 +74,8 @@ prBase.prototype.cp = function (it) {  // "copy" function
 	this.y2 = it.y2;
 	this.r = it.r;
 	this.g = it.g;
-	this.t1 = it.t1; 
-	this.t2 = it.t2; 
-	this.sc = it.sc;
+	this.p0 = it.p0; 
+	this.dp = it.dp; 
 }
     
 	
@@ -76,15 +87,16 @@ prBase.prototype.cl = function ()  { // "clear" function
     this.y2 = 0.0;
     this.r = 0.0;			
     this.g = 0;
-	this.t1 = 0.0;
-	this.t2 = 0.0; 
-	this.sc = 1.0; 
+	this.p0 = 0.0;
+	this.dp = 0.01;
 }
 
 
 
 prBase.prototype.ec = function(label) { // "echo"
-	var displayStr = label + "t:" + this.t + " x:" + this.x + " y:" + this.y + "  x2:" + this.x2 + " y2:" + this.y2 + "    r:" + this.r;
+	var displayStr = label + "t:" + this.t + " x:" + this.x + " y:"; 
+	displayStr += this.y + "  x2:" + this.x2 + " y2:" + this.y2 + "    r:" + this.r;
+	displayStr += "  g:" + this.g + " p0:" + this.p0+ " dp:" + this.dp;
 	console.log(displayStr); 
 }
 
@@ -99,11 +111,11 @@ prBase.prototype.sY = function(u) { // segment y coord
 
 
 prBase.prototype.aX = function(u) { // arc X coord for parameter u
-	return this.x + (this.r*Math.cos(u*PR_2P*-1.0));  
+	return this.x + (this.r*Math.cos(PR_2P * (this.p0 + (this.dp*u))));  
 }
 
 prBase.prototype.aY = function(u) { // arc Y
-	return this.y + (this.r*Math.sin(u*PR_2P*-1.0));  
+	return this.y + (this.r*Math.sin(PR_2P*(this.p0 + (this.dp*u))));  
 
 }
 
@@ -111,11 +123,11 @@ prBase.prototype.aY = function(u) { // arc Y
 
 //"trace": draw to screen in default manner
 prBase.prototype.tr = function(context) { 
-	var n, t, dt, p1x, p1y; 
+	var n, p, plim, pct, p1x, p1y; 
 	switch (this.t) {
         case PR_P:
 		    context.moveTo(this.x+3.0 , this.y); 
-            context.arc(this.x, this.y, 3.0,0.0, 6.28);
+            context.arc(this.x, this.y, 3.0,0.0, PR_2P);
             break;
         case PR_L:
 			context.moveTo(this.x-(200.0*this.x2), this.y-(200.0*this.y2)); 
@@ -125,77 +137,31 @@ prBase.prototype.tr = function(context) {
 			context.moveTo(this.x+this.r , this.y); 
             context.arc(this.x, this.y, this.r, 0.0, PR_2P);
             break;
-		case PR_T: 
-			// don't render parameters
-			break;
         case PR_S:
-			context.moveTo(this.x+(this.x2*this.t1), 
-							this.y+(this.y2*this.t1)); 
-			context.lineTo(this.x+(this.x2*this.t2), 
-							this.y+(this.y2*this.t2) );
+			context.moveTo(this.x, this.y); 
+			context.lineTo(this.x+this.x2, this.y+this.y2);
             break;
         case PR_A: // the JS "arc" command does not suit me for lofting
-			p1x = this.aX(this.t1); 
-			p1y = this.aY(this.t1);
+			p1x = this.aX(0.0); 
+			p1y = this.aY(0.0);
 			context.moveTo(p1x, p1y);
-			dt = (this.t2-this.t1)/this.sc;
-			for (n=0; n<=this.sc; ++n) { 
-				t = this.t1 + (n*dt); 
-				p1x = this.aX(t); 
-				p1y = this.aY(t)
+			if (this.dp>0.0) { plim = 1.0; }
+			else { plim = -1.0; }
+			pct = (plim / 50.0);
+			p = 0.0;
+			for (n=0.0; (n*n)<=1.0; n=n+pct) { 
+				p1x = this.aX(n); 
+				p1y = this.aY(n)
 				context.lineTo(p1x, p1y);
 			}
 			break;
+		// PR_F is not drawn here; it needs the page's list of prBase
 	}
 }
     
-/*
-prBase.prototype.label = function(w, labelNum) {
-        n = random(1.0);
-        lx = 0;
-        ly = 0;
-        sz = w*2;
-        switch (t) {
-            case PR_P:
-                lx = this.x;
-                ly = this.y;
-                break;
-            case PR_L:
-                lx = this.x + (this.x2*n);
-                ly = this.y + (this.y2*n);
-                break;
-            case PR_C:
-                lx = this.x + (this.r * cos(4.28*n));
-                ly = this.y + (this.r * sin(4.28*n));
-                break;
-        }
-        n = random(4.28);
-        cx = lx + 5.0*w*cos(n);
-        cy = ly + 5.0*w*sin(n);
-        fill(0);
-        switch (t) {
-            case PR_P:
-                rect(cx-sz, cy-sz*0.5, sz+sz, sz);
-                break;
-            case PR_L:
-                rect(cx-sz, cy-sz, sz+sz, sz+sz);
-                break;
-            case PR_C:
-                ellipse(cx, cy, sz+sz, sz+sz);
-                break;
-        }
-        fill(255);
-        line(lx, ly, cx, cy);
-        t = str(labelNum);
-        textAlign(CENTER);
-        text(t, cx, cy+w);
-        noFill();
-}
-    */
-        
     
     
-/////////////////// ops on points
+/////////////////// utilities-- private
     
 // returns 1 if "this" is a point
 prBase.prototype.isaP = function () {
@@ -222,17 +188,157 @@ prBase.prototype.eqP = function (it) {
 }
 
 
+// returns 0 unless p1 and p2 are in the same place
+prBase.prototype.eqs = function(x1,y1,x2,y2) {
+	var res = 0; 
+	if (Math.sqrt(((x2-x1)*(x2-x1))+((y2-y1)*(y2-y1)))<PR_E) { res = 1; }
+	return res; 
+}
+
+
+// return angle in radians that p2-p1 makes with the x-axis 
+//  can't work if points are the same!
+// returns 0<=ang<=2pi, or -1 for error
+prBase.prototype.ang = function(x1,y1,x2,y2) {
+	var dx = x2-x1; 
+	var dy = y2-y1; 
+	var len = Math.sqrt(dx*dx+dy*dy); 
+	if (len<PR_E) { return -1.0; } // error: coincident points.
+	var res = Math.acos(dx/len); 
+	if (dy<0.0) { res = PR_2P - res; }
+	return res; 
+}
+
+// take a maximum facet length, maxd. 
+// return a dt for the parameters that deliver that  
+prBase.prototype.scanLength = function(maxd) {
+	var dp; 
+	var res = (maxd / this.r); 
+	if (this.t == PR_A) { 
+		res /= PR_2P; 
+	}
+	res *= (this.t2 - this.t1); 
+	return res;
+}
+
+
+
+////////// closest-points!
+// this as opposed to calling them "point on"-- numerical
+// self is line or circle; returns parameter of point on object closest to
+
+// "closest point on line"
+// return the parameter of the point on the object closest to p
+prBase.prototype.cpoL = function (pt) {
+	var dx, dy; 
+	var res = 0.0;
+	if (this.r>PR_E) {
+		dx = pt.x - this.x;
+		dy = pt.y - this.y;
+		res = ((dx*this.x2) + (dy*this.y2))/(this.r*this.r); // a parameter, but an incorrect one
+	} // else self is not really a line; problematic! and t should==0
+	return res;
+}
+
+// "closest point on circle"
+prBase.prototype.cpoC = function (pt) {
+    var ang = this.ang(this.x, this.y, pt.x, pt.y);
+    var res = -1.0;
+    if (ang>-0.5) {
+    	res = (ang/PR_2P) - this.p0;
+    	if (res<0.0) { res +=1.0; }
+	}
+	return res;
+}
+
+
+// "closest parametric point"
+prBase.prototype.cPP = function (pt) {
+	var res = 0.0;
+	if (this.t!=PR_P) {
+		switch (this.t) {
+			// case PR_P: res = 0.0; break;
+			case PR_L:
+				res = this.cpoL(pt);
+				break;
+			case PR_C:
+				res = this.cpoC(pt);
+				break;
+		}
+	}
+	return res;
+}
+
+
+
+
+
 ///////////////////////////////////////////////////
-// set as point
+// "Set As" functions
 // there are many functions that "set (this) as X"
 
-
+// set as Point
 prBase.prototype.saP = function (xin, yin) {  // set as point
 	this.t = PR_P;
 	this.x = xin;
 	this.y = yin;
 	// the other members are set by the constructor
 }
+
+
+// set as point from another point -- maybe never used?
+prBase.prototype.saPP = function ( pt, tin) {
+	this.t = PR_P;
+	this.x = pt.x;
+	this.y = pt.y;  
+}
+
+
+// given line, line parameters, set this as a point on that line
+prBase.prototype.saPL = function ( ln,  tin) {
+	this.t = PR_P;
+	this.x = ln.sX(tin);
+	this.y = ln.sY(tin);
+}
+
+
+// set as point on circle
+prBase.prototype.saPC = function ( ck,  tin) {
+	this.t = PR_P;
+	this.x = ck.aX(tin);  // implies that both circles and arcs need p0 dp's set
+	this.y = ck.aY(tin);
+}
+
+
+// set as parametric --
+prBase.prototype.saPm = function ( ob,  tin) {
+	switch (ob.t) {
+		case PR_P:
+			this.saPP(ob, tin); 
+			break;
+		case PR_L:
+			this.saPL(ob, tin);
+			break;
+		case PR_C:
+			this.saPC(ob, tin);
+			break;
+		case PR_S: 
+			this.saPL(ob, tin);
+			break;
+		case PR_A:
+			this.saPC(ob, tin);
+			break;
+	}
+}
+
+// taking a prBase of type PR_T-- never used; PR_T's are gone? 
+prBase.prototype.saPmO = function(ob, tob) { 
+	this.saPm(ob, tob.t1); 
+}
+
+
+
+
 
 // set as line
 prBase.prototype.saL = function (xin, yin, x2in, y2in) {
@@ -247,6 +353,7 @@ prBase.prototype.saL = function (xin, yin, x2in, y2in) {
 	}
 }
 
+
 // set as circle
 prBase.prototype.saC = function (xin, yin, x2in, y2in) {
 	this.t = PR_C;
@@ -257,40 +364,114 @@ prBase.prototype.saC = function (xin, yin, x2in, y2in) {
 	this.r = Math.sqrt(this.x2*this.x2+this.y2*this.y2);
 	if (this.r<PR_E) { // points same? return a point.
 		this.t = PR_P;
+	} else { 
+		this.p0 = this.ang(xin, yin, x2in, y2in);
+		this.p0 /= PR_2P;
+		this.dp = 1.0;
 	}
 }
 
 
-// set as segment
-prBase.prototype.saS = function (lineIn, t1in, t2in) {
-	this.cp(lineIn); 	// copy the input line
-	this.t = PR_S; 		// then tweak. 
-	this.t1 = t1in; 
-	this.t2 = t2in; 
+// set as parametric segment, define endpoints using parameters
+prBase.prototype.sapS = function (lineIn, t1in, t2in) {
+	var nx1, ny1, nx2, ny2; 
+	if (((t1in-t2in)*(t1in-t2in))>PR_E) {
+		this.cp(lineIn); 	// copy the input line
+		nx1 = this.sX(t1in); // but the parameters give the new endpoints
+		ny1 = this.sY(t1in); 
+		nx2 = this.sX(t2in); 
+		ny2 = this.sY(t2in); 
+		this.t = PR_S; 		// then tweak. 
+		this.x = nx1; 
+		this.y = ny1; 
+		this.x2 = nx2; 
+		this.y2 = ny2; 
+	} else {
+		this.t = PR_N; // if the points coincide, no mark.
+	}
 }
 
-// set as arc
-prBase.prototype.saA = function (circleIn, t1in, t2in) {
-	this.cp(circleIn);  // start out as a a circle
+
+// set as segment using points; project the points onto the line, 
+// then define the segment using them. 
+prBase.prototype.saS = function (lineIn, p1, p2) {
+	var t1 = lineIn.cpoL(p1); // t1,t2= parameters of p1,p2 
+	var t2 = lineIn.cpoL(p2); 
+	this.sapS(lineIn, t1, t2);  
+}
+
+
+
+
+// set as parametric arc, using 3 parametric points on a circle
+// t1 and t3 give arc ends, but that gives 2 arcs! 
+// we want the arc that sweeps through t2/p2 
+prBase.prototype.sapA = function (circleIn, t1in, t2in, t3in) {
+	this.t=PR_A; 
+	// normalize t1t2t3 to be 0<t<1
+	var t1 = t1in - Math.floor(t1in); 
+	if (t1<0.0) { t1 += 1.0; }
+	var t2 = t2in - Math.floor(t2in); 
+	if (t2<0.0) { t2 += 1.0; }
+	var t3 = t3in - Math.floor(t3in);
+	if (t3<0.0) { t3 += 1.0; }
+	// fail if there are not 3 different points 
+	if (((t1-t2)*(t1-t2))<PR_E) { this.t = PR_N; }
+	if (((t1-t3)*(t1-t3))<PR_E) { this.t = PR_N; }
+	if (((t3-t2)*(t3-t2))<PR_E) { this.t = PR_N; }
+	if (this.t!=PR_N) {
+		this.cp(circleIn);  // start out as a a circle
+		this.t=PR_A; 
+	
+		// preserve radius & set 0-angle to be through t1
+		this.x2 = this.r * Math.cos(t1 * PR_2P);
+		this.y2 = this.r * Math.sin(t1 * PR_2P);
+
+		// recast t2 and t3 st t1==0 
+		t2 = t2 - t1; 
+		if (t2<0.0) { t2 += 1.0; }
+		t3 = t3 - t1;
+		if (t3<0.0) { t3 += 1.0; }
+
+		if (this.t==PR_A) {
+			this.p0 = t1; 
+			if (t2<t3) {
+				this.dp = t3;
+			} else {
+				this.dp = t3-1.0; 
+			}
+		}
+	}
+}
+
+
+// set as arc, using points to define the arc. the norm; how Euclid would do it!
+prBase.prototype.saA = function (circleIn, p1,p2,p3) {
+	var t1 = this.ang(circleIn.x, circleIn.y, p1.x, p1.y);
+	var t2 = this.ang(circleIn.x, circleIn.y, p2.x, p2.y);
+	var t3 = this.ang(circleIn.x, circleIn.y, p3.x, p3.y);	
+	// failure cause: any of p1,p2,p3, being coincident with circle center
 	this.t = PR_A; 
-	
-	// parameters t1 and t2 are set to make the routines "aX"
-	// and "aY" fast. t1 & t2 are stored as radians.
-	// I want the grade-school norm of increasing angles going ccw. 
-	// The 0 angle is based on the direction stored in x2y2. 
-	// Also, JS makes (0,0) the top-left corner, with y-axis pointing down. 
-	
-	// determine the 0 angle from (x2,y2)
-	var w = Math.acos(this.x2/this.r);  
-	if (this.y2<0.0) { w = PR_2P - w; }
-	
-	this.t1 = t1in + (w/PR_2P); 
-	this.t2 = t2in + (w/PR_2P);  
-	
-	// note: could be <0!
-	this.sc = (t2in-t1in)*this.r*0.5; 
-	if (this.sc<0.0) { this.sc = 0.0-this.sc; }
-	this.sc = Math.ceil(this.sc); 
+	if (t1<0.0) { this.t = PR_N; }
+	if (t2<0.0) { this.t = PR_N; }
+	if (t3<0.0) { this.t = PR_N; }
+	if (this.t!=PR_N) {
+		this.sapA(circleIn, t1/PR_2P, t2/PR_2P, t3/PR_2P); 
+	}
+}
+
+
+
+
+
+// set as loft: 
+// inputs are the indices into the prPage of the marks that bound
+// the loft. So, most of the code for lofting lives in prPage. 
+// NOTE GIVE INDICES, NOT OBJECTS
+prBase.prototype.saF = function (mark1, mark2) {
+	this.t = PR_F; 
+	this.x = mark1; 
+	this.y = mark2;
 }
 
 
@@ -542,7 +723,7 @@ prBase.prototype.iCC = function (cr,  pt) {
 
 
 // returns 0 if there is no (new) point, ow= the number of intersection points: 1 or 2.
-// prFigure uses "closer" to choose which is first and which second.
+// calling fns use "closer" to choose which is first and which second.
 prBase.prototype.intersect = function (it,  pt) {
 	var res = 0;
 	var tcases = this.t*10 + it.t; 
@@ -560,7 +741,9 @@ prBase.prototype.intersect = function (it,  pt) {
 		case PR_C*10 + PR_C:
 			res = this.iCC(it, pt);
 			break;
-		default: // intersections with points, parameters, or marks return nothing. 
+		default: 
+			// intersections with points, parameters, marks, 
+			//and lofts return nothing. 
 			break; 
 	}
 	if (res!=0) {
@@ -626,210 +809,6 @@ prBase.prototype.saSI = function (obj1,  obj2,  target) {
 
 
 
-/////////////// parametrics
-// set self to be a point on another prBase
-
-// this one is kinda stupid. 
-prBase.prototype.saPP = function ( pt, tin) {
-	this.t = PR_P;
-	this.x = pt.x;
-	this.y = pt.y;  
-	// tin is ignored; parametric points from points = the point
-}
-
-
-// take t, set point to be on object
-prBase.prototype.saPL = function ( ln,  tin) {
-	this.t = PR_P;
-	this.x = ln.x + (ln.x2*tin);
-	this.y = ln.y + (ln.y2*tin);
-}
-
-
-prBase.prototype.saPC = function ( ck,  tin) {
-	this.t = PR_P;
-	var cs = Math.cos(tin*-1.0*PR_2P); // 0->1 goes around the circle once; 
-	var sn = Math.sin(tin*-1.0*PR_2P); // radians are rude, if you're not a physisist. 
-	this.x = ck.x + (ck.x2*cs) - (ck.y2*sn);  // p2 is pt for t=0
-	this.y = ck.y + (ck.y2*cs) + (ck.x2*sn);
-}
-
-
-// set as parametric point
-prBase.prototype.saPm = function ( ob,  tin) {
-	switch (ob.t) {
-		case PR_P:
-			this.saPP(ob, tin); 
-			break;
-		case PR_L:
-			this.saPL(ob, tin);
-			break;
-		case PR_C:
-			this.saPC(ob, tin);
-			break;
-		case PR_S: 
-			this.saPL(ob, this.p1 + (tin*(this.p2-this.p1)) );
-			break;
-		case PR_A:
-			this.saPC(ob, this.p1 + (tin*(this.p2-this.p1)) );
-			break;
-	}
-}
-
-// taking a prBase of type PR_T. 
-prBase.prototype.saPmO = function(ob, tob) { 
-	this.saPm(ob, tob.t1); 
-}
-
-
-// take a maximum facet length, maxd. 
-// return a dt for the parameters that deliver that  
-prBase.prototype.scanLength = function(maxd) {
-	var dp; 
-	var res = (maxd / this.r); 
-	if (this.t == PR_A) { 
-		res /= PR_2P; 
-	}
-	res *= (this.t2 - this.t1); 
-	return res;
-}
-
-
-
-////////// closest-points!
-// this as opposed to calling them "point on"-- numerical
-// self is line or circle; returns parameter of point on object closest to
-
-// "closest point on line"
-// return the parameter of the point on the object closest to p
-prBase.prototype.cpoL = function ( pt) {
-	var dx, dy; 
-	var res = 0.0;
-	if (this.r>PR_E) {
-		dx = pt.x - this.x;
-		dy = pt.y - this.y;
-		res = ((dx*this.x2) + (dy*this.y2))/(this.r*this.r); // a parameter, but an incorrect one
-	} // else self is not really a line; problematic! and t should==0
-	return res;
-}
-
-// "closest point on circle"
-prBase.prototype.cpoC = function ( pt) {
-    var dx, dy, len, xcom, ycom, rux, ruy, theta, det; 
-	var res = 0.0;
-	var dx = pt.x - this.x;
-	var dy = pt.y - this.y;
-	var len = Math.sqrt(dx*dx+dy*dy); // distance from center
-	if (len>PR_E) {
-		// convers dxy to a unit vector. 
-		dx /= len;
-		dy /= len; 
-		rux = this.x2 / this.r;    /// unit version of x2y2
-		ruy = this.y2 / this.r; 
-		xcom = (dx*rux)+(dy*ruy);  // length of dxy in dir of ruxy
-		theta = Math.acos(xcom); 
-		det = (dx*ruy)-(rux*dy); 
-		if (det<0.0) { theta = (2.0*Math.PI)-theta; }
-		// guessing now? 
-		res = theta/ (Math.PI*2.0); 
-	}
-	return res;
-}
-
-
-// "closest parametric point"
-// it is the thing being used to position the point
-prBase.prototype.cPP = function ( pt) {
-	var res = 0.0;
-	if (this.t!=PR_P) {
-		switch (this.t) {
-			// case PR_P: res = 0.0; break;
-			case PR_L:
-				res = this.cpoL(pt);
-				break;
-			case PR_C:
-				res = this.cpoC(pt);
-				break;
-		}
-	}
-	return res;
-}
-
-
-// as cPP, but returning a PR_T 
-prBase.prototype.saCPP = function(ob, pt) {
-	this.t = PR_T;
-	this.t1 = ob.cPP(pt);
-}
-
-
-
-
-/*
- 
-function testcode() { 
-	var c_canvas = document.getElementById("blank");
-	var context = c_canvas.getContext("2d");
-	
-      context.beginPath();
-      context.rect(0,0, 500, 500);
-      context.fillStyle = 'white';
-      context.fill();
-	  
-     context.strokeStyle = "#aaa";
-	for (var x = -0.5; x < 500; x += 100) {
-  		context.moveTo(x, 0);
-  		context.lineTo(x, 500);
-		context.stroke(); 
-  		context.moveTo(0, x);
-  		context.lineTo(500, x);
-		context.stroke(); 
-} 
-
-     context.strokeStyle = "#a00";
-	 a = new prBase();
- b = new prBase(); 
- c = new prBase(); 
- d = new prBase();
- e = new prBase();
- f = new prBase();
- g = new prBase();
- 
- t += 0.2;
- a.setAsLine(400.0, 100.0, 400.0+20.0*Math.cos(0.03*t), 100+20.0*Math.sin(0.03*t)); 
- b.setAsCircle(200.0, 200.0, 200.0, 300.0); 
- d.setAsLine(400.0, 200.0, 400.0+20.0*Math.cos(0.02*t), 200+20.0*Math.sin(0.02*t)); 
- g.setAsPoint(300, 400); 
- a.trace(context); 
- b.trace(context); 
- d.trace(context);
- g.trace(context);
- 
- e.setAsFirstIntersection(a, b, g); 
- e.trace(context);
- e.setAsFirstIntersection(a, d, g); 
- e.trace(context);
-
- f.setAsFirstIntersection(d, b, g); 
- f.trace(context);
- f.setAsSecondIntersection(d, b, g); 
- f.trace(context);
- 
- f.setAsParametric(a, Math.sin(t)); 
- f.trace(context); 
- f.setAsParametric(b, Math.sin(t*0.1)); 
- f.trace(context); 
- e.setAsParametric(d, Math.sin(t)); 
- e.trace(context);
- }
-
-
-function redraw() { 
-	//back.src = "blank.jpg";
-	// back.onload = testcode(); 
-	setInterval(testcode, 50); 
-}
-*/
 
 
 
@@ -873,6 +852,7 @@ function prPage(context) {
 	this.groupColors[0] = "#fff"; // 0 is the background group
 	this.groupColors[1] = "#000";
 	this.currentGroup = 1; // new prBase are given this group number.
+	// use -1 as a group if you don't want something drawn. 
 }
 
 
@@ -889,8 +869,12 @@ prPage.prototype.setCurrentGroup = function(group) {
 	this.currentGroup = group; 
 }
 
+prPage.prototype.setGroup = function(obj, group) {
+	this.objs[obj].g = group; 
+}
+
 prPage.prototype.redraw = function() {
-	var i, j, gc, objCt, ob; 
+	var i, j, gc, objCt, ob, m1, m2; 
 	gc = this.groupColors.length; // group count
 	objCt = this.objCount;  
 
@@ -905,8 +889,14 @@ prPage.prototype.redraw = function() {
 		this.cx.beginPath();
 		for (j=1; j<objCt; j=j+1) { 
 			ob = this.objs[j]; 
-			if ((ob.g===i)&&(ob.t!=PR_N)) { // can't draw NULL
+			if ((ob.g===i)&&(ob.t!=PR_N)&&(ob.t!=PR_F)) { 
 				this.objs[j].tr(this.cx);
+			}
+			if ((ob.g===i)&&(ob.t==PR_F)) {
+				m1 = this.objs[j].x; 
+				m2 = this.objs[j].y; 
+
+				
 			}
 		}
 		this.cx.stroke(); 
@@ -1027,6 +1017,34 @@ prPage.prototype.isAnArc= function(ob) {
 	}
 	return res;
 }
+prPage.prototype.isAMark= function(ob) { 
+	var res = 0;
+	if ((0<ob)&&(ob<this.objCount)) {  // 0<ob<objCount
+		if (this.objs[ob]) {  // there is an obj at objs[ob]  
+			if (this.objs[ob].t==PR_S) { // is a segment
+				res = 1;
+			}
+			if (this.objs[ob].t==PR_A) { // is an arc
+				res = 1;
+			}
+		}
+	}
+	return res;
+}
+prPage.prototype.isALoft= function(ob) { 
+	var res = 0;
+	if ((0<ob)&&(ob<this.objCount)) {  // 0<ob<objCount
+		if (this.objs[ob]) {  // there is an obj at objs[ob]  
+			if (this.objs[ob].t==PR_S) { // is a segment
+				res = 1;
+			}
+			if (this.objs[ob].t==PR_A) { // is an arc
+				res = 1;
+			}
+		}
+	}
+	return res;
+}
 prPage.prototype.isAnObject= function(ob) { 
 	var res = 0;
 	if ((0<ob)&&(ob<this.objCount)) {  // 0<ob<objCount
@@ -1087,13 +1105,29 @@ prPage.prototype.addCircle = prPage.prototype.circle;
 
 
 // line plus p1p2
-prPage.prototype.segment = function(ob, t1in, t2in) {
+prPage.prototype.pSegment = function(ob, t1in, t2in) {
 	var res = this.objCount; 
 	if (this.isALine(ob)==0) { console.log("addSegment: argument 1 is not a line"); res=0; }
 	if (res===this.objCount) {  // 0<ob<objCount
-		res = this.objCount;
 		this.objs[res] = new prBase;
-		this.objs[res].saS(this.objs[ob], t1in, t2in);
+		this.objs[res].sapS(this.objs[ob], t1in, t2in);
+		this.objs[res].g = this.currentGroup;
+		++this.objCount;
+	}
+	return res;
+}
+prPage.prototype.addParametricSegment = prPage.prototype.segment;
+
+
+// segment from a line and 2 points
+prPage.prototype.segment = function(ob, p1, p2) {
+	var res = this.objCount; 
+	if (this.isALine(ob)==0) { console.log("addSegment: argument 1 is not a line"); res=0; }
+	if (this.isAPoint(p1)==0) { console.log("addSegment: argument 2 is not a point"); res=0; }
+	if (this.isAPoint(p2)==0) { console.log("addSegment: argument 3 is not a point"); res=0; }
+	if (res===this.objCount) {  // 0<ob<objCount
+		this.objs[res] = new prBase;
+		this.objs[res].saS(this.objs[ob], p1, p2);
 		this.objs[res].g = this.currentGroup;
 		++this.objCount;
 	}
@@ -1102,20 +1136,52 @@ prPage.prototype.segment = function(ob, t1in, t2in) {
 prPage.prototype.addSegment = prPage.prototype.segment;
 
 
-// circle plus p1p2
-prPage.prototype.arc = function(ob, t1in, t2in) {
+// circle plus p1p2--- and p3 to identify which side
+prPage.prototype.pArc = function(ob, t1in, t2in, t3in) {
 	var res = this.objCount; 
 	if (this.isACircle(ob)==0) { console.log("addArc: argument 1 is not a circle"); res=0; }
 	if (res===this.objCount) {  // 0<ob<objCount
-		res = this.objCount;
 		this.objs[res] = new prBase;
-		this.objs[res].saA(this.objs[ob], t1in, t2in);
+		this.objs[res].sapA(this.objs[ob], t1in, t2in, t3in);
+		this.objs[res].g = this.currentGroup;
+		++this.objCount;
+	}
+	return res;
+}
+prPage.prototype.addParametricArc = prPage.prototype.pArc;
+
+
+prPage.prototype.arc = function(ob, p1, p2, p3) {
+	var res = this.objCount; 
+	if (this.isACircle(ob)==0) { console.log("addArc: argument 1 is not a circle"); res=0; }
+	if (this.isAPoint(p1)==0) { console.log("addArc: argument 2 is not a point"); res=0; }
+	if (this.isAPoint(p2)==0) { console.log("addArc: argument 3 is not a point"); res=0; }
+	if (this.isAPoint(p3)==0) { console.log("addArc: argument 4 is not a point"); res=0; }
+	if (res===this.objCount) {  // 0<ob<objCount
+		this.objs[res] = new prBase;
+		this.objs[res].saA(this.objs[ob], this.objs[p1], this.objs[p2], this.objs[p3]);
 		this.objs[res].g = this.currentGroup;
 		++this.objCount;
 	}
 	return res;
 }
 prPage.prototype.addArc = prPage.prototype.arc;
+
+
+// circle plus p1p2
+prPage.prototype.loft = function(ob1, ob2) {
+	var res = this.objCount; 
+	if (this.isAMark(ob1)==0) { console.log("addLoft: argument 1 is not a mark"); res=0; }
+	if (this.isAMark(ob2)==0) { console.log("addLoft: argument 1 is not a mark"); res=0; }
+	if (res===this.objCount) {  // 0<ob<objCount
+		this.objs[res] = new prBase;
+		this.objs[res].saF(ob1, ob2);
+		this.objs[res].g = this.currentGroup;
+		++this.objCount;
+	}
+	return res;
+}
+//prPage.prototype.addArc = prPage.prototype.arc;
 
 
 
@@ -1166,8 +1232,8 @@ prPage.prototype.second = function( ob1,  ob2,  target) {
 prPage.prototype.addSecondIntersection = prPage.prototype.second;
 
 
-// points on lines or circles-- an abuse? Euclid did not have this.
-prPage.prototype.parametric = function( obj,  t) {
+// points on lines, circles, segments, or arcs-- an abuse? Euclid did not have this.
+prPage.prototype.parametric = function(obj, t) {
 	var res = this.objCount; 
 	if (this.isAnObject(obj)==0) { console.log("addParametricPoint: argument 1 is not intersectable"); res=0; }
 	if (res===this.objCount) { 
@@ -1185,14 +1251,16 @@ prPage.prototype.parametric = function( obj,  t) {
 prPage.prototype.addParametricPoint = prPage.prototype.parametric;
 
 
-prPage.prototype.closestPointParam = function(obj, pt) {
+prPage.prototype.closest = function(obj, pt) {
 	return this.objs[obj].cPP(this.objs[pt]); 
 }
+prPage.prototype.getClosestPointParameter = prPage.prototype.closest; 
 
 
-prPage.prototype.getBase= function ( which) { 
-	return this.objs[which];
-}
+
+// something for adding a mark that is between two points...
+
+
 
 
 // given two marks, loft between them
@@ -1206,11 +1274,8 @@ prPage.prototype.loft = function(m1in, m2in, color) {
 	m1.cp(this.objs[m1in]); 
 	m2.cp(this.objs[m2in]); 
 	
-	
 	sc = m1.sc;
-	if (m2.sc>m1.sc) {
-		sc= m2.sc;
-	}
+	if (m2.sc>m1.sc) { sc= m2.sc; }
 	dt = 1.0/sc;
 	dt1 = (m1.t2 - m1.t1)/sc; 
 	dt2 = (m2.t2 - m2.t1)/sc; 

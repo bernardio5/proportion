@@ -18,43 +18,51 @@
 		switch (toUse) {
 			case 0: theMachines.midpoint_test(t); break;
 			case 1: theMachines.perpendicular_test(t); break;
-			case 29: theMachines.goldenRatio_test(t); break;
-			case 2: theMachines.series_test(t); break;
-			case 3: theMachines.tangents_test(t); break;
-			case 4: theMachines.angleBisection_test(t); break;
-			case 28: theMachines.subdivide_test(t); break;
-			case 30: theMachines.sublimeTriangleFromLong_test(t); break;
-			case 31: theMachines.sublimeTriangleFromShort_test(t); break;
+			case 2: theMachines.goldenRatio_test(t); break;
+			case 3: theMachines.series_test(t); break;
+			case 4: theMachines.tangents_test(t); break;
+			case 5: theMachines.angleBisection_test(t); break;
+			case 6: theMachines.subdivide_test(t); break;
+			case 7: theMachines.circleTransfer_test(t); break;
+			case 8: theMachines.sublimeTriangleFromLong_test(t); break;
+			case 9: theMachines.sublimeTriangleFromShort_test(t); break;
 
-			case 5: theMachines.squareInCircle_test(t); break;
-			case 6: theMachines.squareOnLine_test(t); break;
-			case 7: theMachines.squareAcrossLine_test(t); break;
+			case 10: theMachines.squareInCircle_test(t); break;
+			case 11: theMachines.squareOnLine_test(t); break;
+			case 12: theMachines.squareAcrossLine_test(t); break;
 
-			case 8: theMachines.completeParallelogram_test(t); break;
+			case 13: theMachines.completeParallelogram_test(t); break;
 
-			case 9: theMachines.goldenOnLine_test(t); break; 
-			case 10: theMachines.goldenOnLine2_test(t); break; 
-			case 11: theMachines.goldenOnLine3_test(t); break; 
+			case 14: theMachines.goldenOnLine_test(t); break; 
+			case 15: theMachines.goldenOnLine2_test(t); break; 
+			case 16: theMachines.goldenOnLine3_test(t); break; 
 
-			case 12: theMachines.pentagonInCircle_test(t); break;
-			case 13: theMachines.pentagonOnLine_test(t); break;
-			case 14: theMachines.pentagonAcrossLine_test(t); break;
+			case 17: theMachines.pentagonInCircle_test(t); break;
+			case 18: theMachines.pentagonOnLine_test(t); break;
+			case 19: theMachines.pentagonAcrossLine_test(t); break;
 
-			case 15: theMachines.hexagonInCircle_test(t); break;
-			case 16: theMachines.hexagonOnLine_test(t); break;
-			case 17: theMachines.hexagonAcrossLine_test(t); break;			
-			case 18: theMachines.hexagonAcrossLine2_test(t); break;
+			case 20: theMachines.hexagonInCircle_test(t); break;
+			case 21: theMachines.hexagonOnLine_test(t); break;
+			case 22: theMachines.hexagonAcrossLine_test(t); break;			
+			case 23: theMachines.hexagonAcrossLine2_test(t); break;
 			
-			case 19: theMachines.heptagonInCircle_test(t); break;
-			case 20: theMachines.heptagonOnLine_test(t); break;
+			case 24: theMachines.heptagonInCircle_test(t); break;
+			case 25: theMachines.heptagonOnLine_test(t); break;
 
-			case 21: theMachines.octagonInCircle_test(t); break;
-			case 22: theMachines.octagonOnLine_test(t); break;
+			case 26: theMachines.octagonInCircle_test(t); break;
+			case 27: theMachines.octagonOnLine_test(t); break;
 			
-			case 25: theMachines.gridFromTwoPoints_test(t); break;
-			case 26: theMachines.gridFromThreePoints_test(t); break;
-			case 27: theMachines.doubler_test(t); break;
-			
+			case 28: theMachines.gridFromTwoPoints_test(t); break;
+			case 29: theMachines.gridFromThreePoints_test(t); break;
+
+			case 30: theMachines.gridInTwoPoints_test(t); break;
+			case 31: theMachines.gridInThreePoints_test(t); break;
+
+			case 32: theMachines.roundedSegment_test(t); break;
+			case 33: theMachines.squaredSegment_test(t); break;
+			case 34: theMachines.roundedParallelogram_test(t); break;
+
+			case 35: theMachines.doubler_test(t); break;
 			default: break; 
 		}
 		
@@ -90,40 +98,48 @@
     Select machine:<select id='machineSelect' onchange="setParameters()">
             <option value='0'>midpoint</option>
             <option value='1'>perpendicular</option>
-            <option value='29'>golden ratio on a line</option>
-            <option value='2'>series</option>
-            <option value='3'>tangents to a circle from a point</option>
-            <option value='4'>bisection of angle</option>
-            <option value='30'>sublime triangle from long side</option>
-            <option value='31'>sublime triangle from short side</option>
-            <option value='5'>square in circle</option>
-            <option value='6'>square on line</option>
-            <option value='7'>square across line</option>
+            <option value='2'>golden ratio on a line</option>
+            <option value='3'>series</option>
+            <option value='4'>tangents to a circle from a point</option>
+            <option value='5'>bisection of angle</option>
+            <option value='6'>arbitrary subdivision of a line segment</option>
+            <option value='7'>circle duplication</option>
 
-            <option value='8'>parallelogram completion</option>
+            <option value='8'>sublime triangle from long side</option>
+            <option value='9'>sublime triangle from short side</option>
+            <option value='10'>square in circle</option>
+            <option value='11'>square on line</option>
+            <option value='12'>square across line</option>
 
-            <option value='9'>golden rectangle on line, extending from 2 points</option>
-            <option value='10'>gRect on line, short side</option>
-            <option value='11'>gRect on line, within two points</option>
+            <option value='13'>parallelogram completion</option>
 
-            <option value='12'>pentagon in circle</option>
-            <option value='13'>pentagon on line</option>
-            <option value='14'>pentagon across line</option>
+            <option value='14'>golden rectangle along line</option>
+            <option value='15'>gRect on line, short side</option>
+            <option value='16'>gRect on line, within two points</option>
 
-            <option value='15'>hexagon in circle</option>
-            <option value='16'>hexagon on line</option>
-            <option value='17'>hexagon across line</option>
-            <option value='18'>hexagon across line II</option>
+            <option value='17'>pentagon in circle</option>
+            <option value='18'>pentagon on line</option>
+            <option value='19'>pentagon across line</option>
 
-            <option value='19'>heptagon in circle (approximate!)</option>
-            <option value='20'>heptagon on line</option>
+            <option value='20'>hexagon in circle</option>
+            <option value='21'>hexagon on line</option>
+            <option value='22'>hexagon across line</option>
+            <option value='23'>hexagon across line II</option>
 
-            <option value='21'>octagon in circle</option>
-            <option value='22'>octagon on line</option>
+            <option value='24'>heptagon in circle (approximate!)</option>
+            <option value='25'>heptagon on line</option>
 
-            <option value='25'>rectilinear grid</option>
-            <option value='26'>parallelogram grid</option>
+            <option value='26'>octagon in circle</option>
+            <option value='27'>octagon on line</option>
 
+            <option value='28'>rectilinear grid</option>
+            <option value='29'>parallelogram grid</option>
+
+            <option value='30'>grid in square</option>
+            <option value='31'>grid in parallelogram</option>
+            <option value='32'>rounded segment</option>
+            <option value='33'>squared segment</option>
+            <option value='34'>rounded parallelogram</option>
             </select>
     	<!--<button onclick="setParameters();" href="javascript:;">Go</button> -->
     

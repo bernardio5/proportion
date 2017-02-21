@@ -349,6 +349,52 @@ prMachines.prototype = {
 	// triAcrossLine: use  hex
 
 
+	// From Euclid! How to make a circle around a point (p1) that has the 
+	// same radius as a first circle (p2,p3)
+	circleTransfer: function(p1, pc1, pc2) {
+		var c23 = this.pg.circle(pc1, pc2); // to be transferred
+		var c12 = this.pg.circle(p1,pc1); 
+		var c21 = this.pg.circle(pc1,p1); // to make an equilateral triangle
+		var p4 = this.pg.first(c12,c21,pc2); // doesn't matter which
+		var ln41 = this.pg.line(p4,p1);
+		var ln42 = this.pg.line(p4,pc1);
+		var p1Ext = this.pg.second(c23, ln42, p4); // dist p4-p1Ext= p2-p3 + p1-p2 
+		var cExt = this.pg.circle(p4, p1Ext); 
+		var p5 = this.pg.first(cExt, ln41, p1); 
+		var cGoal = this.pg.circle(p1,p5); 
+
+		var result = {
+			"P1":p1, "PC1":pc1, "PC2":pc2, "PEq":p4, "C1":c12, "C2":c21, "CNew":cGoal};
+		return result;
+	},
+	circleTransfer_test: function(t) { 
+//		var pA = this.pg.given(0.5,0.5); 
+//		var pB = this.pg.given(0.3,0.4); 
+//		var pC = this.pg.given(0.3,0.3); 
+		this.pg.setGroupColor(2, "#00f");
+		var p0 = this.pg.given(0.4,0.5); 
+		var p1 = this.pg.given(0.4,0.4); 
+		var p2 = this.pg.given(0.5,0.5); 
+		var p3 = this.pg.given(0.5,0.4); 
+		var p4 = this.pg.given(0.6,0.5); 
+		var p5 = this.pg.given(0.6,0.4); 
+		var c1 = this.pg.circle(p0,p1); 
+		var c2 = this.pg.circle(p2,p3); 
+		var c3 = this.pg.circle(p4,p5); 
+
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
+
+		var md = this.circleTransfer(pA, pB, pC);
+		this.pg.setGroup(md.CNew, 2);
+	},
+
+
+
+
+
+
 
 	sublimeTriangleFromLong: function(p1, p2, pAbove) { 
 		var gr = this.goldenRatio(p1,p2,pAbove);
@@ -410,8 +456,7 @@ prMachines.prototype = {
 
 
 
-	/////////////////////// equilateral triangles
-	// the only way to specify which is to specify all three points, I think? 
+
 
 	/////////////////////// squares
 	/////////////////////// squares
@@ -528,9 +573,13 @@ prMachines.prototype = {
 
 
 
-	/////////////////////// parallelogram
-	/////////////////////// parallelogram
-	/////////////////////// parallelogram
+
+
+
+
+	/////////////////////// parallelograms
+	/////////////////////// 
+	/////////////////////// 
 
 
 	// given 3 points, add a 4th that make a parallelogram. 
@@ -543,8 +592,8 @@ prMachines.prototype = {
 		var midline = this.pg.line(p2,midPt); 
 		var cFinder = this.pg.circle(midPt,p2);
 		var p4 = this.pg.second(cFinder,midline,p2);
-		var res = { "P1":p1, "P2":p2, "P3":p3, "P4":p4 };
-		return res; 
+		var result = { "P1":p1, "P2":p2, "P3":p3, "P4":p4 };
+		return result; 
 	},
 	completeParallelogram_test: function(t) { 
 		var p0 = this.pg.given(0.4,0.5); 
@@ -1341,6 +1390,7 @@ prMachines.prototype = {
 	}, 
 
 
+
 	// as gridFromTwoPoints, but p1 p2 p3 define a parallelogram
 	gridFromThreePoints: function(n, m, p1, p2, p3) { 
 		var pl = this.completeParallelogram(p1, p2, p3);
@@ -1420,16 +1470,132 @@ prMachines.prototype = {
 		var pName = "LY" + n; 
 		return grid[pName];
 	},
-	// given two points defining a circle, build a n-gon within the circle (for n=3,4,5,6,7,8,9)
 
 
-	// hexagonal grid!!
+	// given two points, make a square, and then subdivide it by m and n
+	gridInTwoPoints: function(m,n,p1,p2) {
 
-	// given two points, give an ordered set of rectilinear grid points
-	// given three points, give an ordered set of non-rectilinear grid points
-	// given an ordered set of grid points, return the m,nth set of three 
-	// given an n-gon, return the union/intersection? eeesh
-	// given an n-gon, return the union/intersection? and fill it in!
+	},
+	gridInTwoPoints_test: function(t) {
+
+	},
+
+
+	// given two points, make an equilateral, and then subdivide it by m and n
+	gridInThreePoints: function(m,n,p1,p2,p3) {
+
+	},
+	gridInThreePoints_test: function(t) {
+
+	},
+
+
+	// hexagonal grid!! shut up
+
+
+	/////////////////////// the usual vector diagram objects
+	/////////////////////// 
+	/////////////////////// 
+
+/*	// add arcs that, when lofted, fill in the circle at p1 through p2
+	fillCircle: function(p1,p2) {
+		var c1 = this.pg.circle(p1,p2);
+		var ln1 = this.pg.line(p1,p2); 
+		
+	},
+	fillCircle_test: function(t) { 
+//		var pA = this.pg.given(0.5,0.5); 
+//		var pB = this.pg.given(0.3,0.4); 
+//		var pC = this.pg.given(0.3,0.3); 
+		this.pg.setGroupColor(2, "#00f");
+		var p0 = this.pg.given(0.4,0.5); 
+		var p2 = this.pg.given(0.6,0.4); 
+		var p3 = this.pg.given(0.4,0.5); 
+		var p5 = this.pg.given(0.6,0.4); 
+		var c1 = this.pg.circle(p0,p2); 
+		var c2 = this.pg.circle(p3,p5); 
+
+		var pA = this.pg.addParametricPoint(c1, t); 
+		var pB = this.pg.addParametricPoint(c2, t*1.1); 
+		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
+
+		var md = this.fillCircle(pA, pB);
+		this.pg.setGroup(md.CNew, 2);
+	},
+*/
+
+	// given two points (on a line), and two more (defining a circle),
+	// make a segment 
+	roundedSegment: function(p1,p2,pc1,pc2) {
+		var end1 = this.circleTransfer(p1, pc1,pc2);
+		var end2 = this.circleTransfer(p2, pc1,pc2);
+//			"P1":p1, "PC1":pc1, "PC2":pc2, "PEq":p4, "C1":c12, "C2":c21, "CNew":cGoal};
+
+		var c1 = this.pg.circle(p1,p2); 
+		var c2 = this.pg.circle(p2,p1); 
+		var ln12 = this.pg.line(p1,p2); 
+		var ce1 = end1.CNew; 
+		var ce2 = end2.CNew; 
+		var p1A = this.pg.first(ce1,c2, pc1);
+		var p1B = this.pg.second(ce1,ln12, p2);
+		var p1C = this.pg.second(ce1,c2, pc1);
+		var p2A = this.pg.first(ce2,c1, pc1);
+		var p2B = this.pg.second(ce2,ln12, p1);
+		var p2C = this.pg.second(ce2,c1, pc1);
+
+		var ln1 = this.pg.line(p1A, p2A); 
+		var ln1 = this.pg.line(p1B, p2B); 
+		var ln1 = this.pg.line(p1C, p2C); 
+
+
+/*		var t1A = this.pg.closestPointParam(ce1, p1A);
+		var t1B = this.pg.closestPointParam(ce1, p1B);
+		var t1C = this.pg.closestPointParam(ce1, p1C);
+		var t2A = this.pg.closestPointParam(ce2, p2A);
+		var t2B = this.pg.closestPointParam(ce2, p2B);
+		var t2C = this.pg.closestPointParam(ce2, p2C);
+
+		var a1AB = theP.arc(ce1, t1A, t1B); 
+		var a1BC = theP.arc(ce1, t1B, t1C); 
+		var a2AB = theP.arc(ce2, t2A, t2B); 
+		var a2BC = theP.arc(ce2, t2B, t2C); 
+
+		theP.loft(a1AB, a2AB, "#999"); 
+		theP.loft(a1BC, a2BC, "#bbb"); 
+*/	},
+	roundedSegment_test: function(t) { 
+		var pA = this.pg.given(0.5,0.5); 
+		var p2 = this.pg.given(0.5,0.49); 
+		var p3 = this.pg.given(0.5,0.45);
+		var c1 = this.pg.circle(p3, p2); 
+		var pB = this.pg.addParametricPoint(c1,t); 
+
+		var p4 = this.pg.given(0.5, 0.2); 
+		var p5 = this.pg.given(0.5, 0.1); 
+		var c2 = this.pg.circle(pA, p4); 
+		var pC = this.pg.addParametricPoint(c2,t*1.1); 
+		var c3 = this.pg.circle(pA, p5); 
+		var pD = this.pg.addParametricPoint(c3,t*0.9); 
+
+		var md = this.roundedSegment(pC, pD, pA, pB);
+	},
+
+
+	// square lines: makes two segments that can be lofted to make a thick line
+	squareLine: function(p1,p2,p3) {
+
+	},
+	squareLine_test: function(t) { 
+	},
+	
+
+	// rounded rect: 
+	roundedRectangle: function(p1,p2,p3) {
+
+	},
+	roundedRectangle_test: function(t) { 
+	},
+
 
 
 

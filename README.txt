@@ -10,8 +10,7 @@ The code in proportion.js is heavily commented.
 The HTML pages in the "examples" directory are a tutorial.
 The code in "prMachines.js" is a set of connom geometric constructions. 
 
-Next up is testing/debugging of lofting, and modification of how 
-color is controlled. Then, on to tiling. 
+Next up is testing/debugging/refinement of lofting.
 
 Neal McDonald
 Jan 2, 2017

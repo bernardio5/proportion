@@ -22,8 +22,8 @@
 		var c2 = theP.addCircle(pp1,pp2); 
 		// var pp3 = theP.addParametricPoint(c2, (frame/200)-0.1); 
 		
-		var i2 = theP.addSecondIntersection(c1, c2, pp2); 
-		var t1 = theP.closestPointParam(c2, p2); 
+		// var i2 = theP.addSecondIntersection(c1, c2, pp2); 
+		var t1 = theP.closest(c2, p2); 
 		var pp3 = theP.addParametricPoint(c2, t1); 
 		var lnproof = theP.addLine(pp1, pp3); 
 	
@@ -64,7 +64,7 @@
     
     <div class = "subCont">
     	<div class="codeBox">
-        The animation above shows that the "addClosestPointParam" function 
+        The animation above shows that the "addClosestParametricPoint" function 
         is working pretty well. I threw in the line to be a smarty-pants: 
         my definition of "pretty well" is those three points being in a line.  
        <br>
