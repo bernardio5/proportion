@@ -684,7 +684,7 @@ prMachines.prototype = {
 		var pB = this.pg.addParametricPoint(c2, t*1.1); 
 		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
 
-		var md = this.goldenOnLine1(pA, pB); 
+		var md = this.goldenOnLine1(pA, pB, pC); 
 
 		var ln1 = this.pg.line(md.P1, md.P2);
 		var ln1 = this.pg.line(md.P1, md.P4);
@@ -1472,12 +1472,65 @@ prMachines.prototype = {
 	},
 
 
-	// given two points, make a square, and then subdivide it by m and n
-	gridInTwoPoints: function(m,n,p1,p2) {
+	// given two points, and a side, make a square, and then subdivide it by m and n
+	gridInTwoPoints: function(m,n,p1,p2, pa) {
+		sp = this.squareOnLine(p1, p2, pa); 
+			
+		s12 = this.subdivide(m, p1,p2); 
+		s34 = this.subdivide(m, sp.P4, sp.P3); 
+		s23 = this.subdivide(n, p2, sp.P3); 
+		s14 = this.subdivide(n, p1, sp.P4);
 
+		var i, j, mlns, nlns;
+		mlns = []; nlns = [];
+		var result = [];
+		result['G00'] = p1;
+		result['G' + m + '0'] = p2;
+		result['G0' + n] = sp.P3;
+		result['G' + m + n] = sp.P4;
+		for (i=2; i<=m; i++) { 
+			var name = "P" + i; 
+			var p1 = s12[name];
+			var p2 = s34[name];			
+			mlns[i] = this.pg.line(s12[name], s34[name]); 
+			name = "G" + i + "0";
+			result[name] = p1;
+			name = "G" + i + n;
+			result[name] = p2;
+		}
+		for (i=2; i<=n; i++) { 
+			var name = "P" + i; 
+			var p1 = s23[name];
+			var p2 = s14[name];			
+			nlns[i] = this.pg.line(s23[name], s14[name]); 
+			name = "G0" + i;
+			result[name] = p1;
+			name = "G" + m + i;
+			result[name] = p2;
+		}
+		
+		for (i=1; i<m-2; i++) { 
+			for (j=1; j<=n-2; j++) {
+				var pij = this.pg.first(mlns[i+1], nlns[j+2], p1);  
+				var name = "P" + i + j; 
+				result[name] = pij;
+			}
+		}
+		return result;
 	},
 	gridInTwoPoints_test: function(t) {
+	/*	var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.1); 
+		*/var p2 = this.pg.given(0.5,0.4); 
+		/*var c0 = this.pg.circle(p0,p1); 
+		var c1 = this.pg.circle(p0,p2); 
 
+		var pA = this.pg.addParametricPoint(c0, t*.3); // inner
+		var pB = this.pg.addParametricPoint(c1, t*.2); // outer
+		*/
+		var p0 = this.pg.given(0.1, 0.1); 
+		var p1 = this.pg.given(0.5, 0.1);
+		var md = this.gridInTwoPoints(4,2,p0, p1, p2);
 	},
 
 
@@ -1490,102 +1543,170 @@ prMachines.prototype = {
 	},
 
 
-	// hexagonal grid!! shut up
+	// triangle grid: from two points
+	triangleGrid: function() {},
 
 
 	/////////////////////// the usual vector diagram objects
 	/////////////////////// 
 	/////////////////////// 
 
-/*	// add arcs that, when lofted, fill in the circle at p1 through p2
-	fillCircle: function(p1,p2) {
-		var c1 = this.pg.circle(p1,p2);
-		var ln1 = this.pg.line(p1,p2); 
-		
-	},
-	fillCircle_test: function(t) { 
-//		var pA = this.pg.given(0.5,0.5); 
-//		var pB = this.pg.given(0.3,0.4); 
-//		var pC = this.pg.given(0.3,0.3); 
-		this.pg.setGroupColor(2, "#00f");
-		var p0 = this.pg.given(0.4,0.5); 
-		var p2 = this.pg.given(0.6,0.4); 
-		var p3 = this.pg.given(0.4,0.5); 
-		var p5 = this.pg.given(0.6,0.4); 
-		var c1 = this.pg.circle(p0,p2); 
-		var c2 = this.pg.circle(p3,p5); 
-
-		var pA = this.pg.addParametricPoint(c1, t); 
-		var pB = this.pg.addParametricPoint(c2, t*1.1); 
-		var pC = this.pg.addParametricPoint(c3, t*.9+.5); 
-
-		var md = this.fillCircle(pA, pB);
-		this.pg.setGroup(md.CNew, 2);
-	},
-*/
-
 	// given two points (on a line), and two more (defining a circle),
-	// make a segment 
-	roundedSegment: function(p1,p2,pc1,pc2) {
+	// construct a "stadium"-- a thick line segment with rounded ends
+ 	stadium: function(p1,p2,pc1,pc2) {
 		var end1 = this.circleTransfer(p1, pc1,pc2);
 		var end2 = this.circleTransfer(p2, pc1,pc2);
 //			"P1":p1, "PC1":pc1, "PC2":pc2, "PEq":p4, "C1":c12, "C2":c21, "CNew":cGoal};
+		var connectorLn = this.pg.line(p1,p2);
+		// perpendiculars to the connector at endpoints. could use the machine...
+		var pin1 = this.pg.first(connectorLn, end1.CNew, p2); 
+		var pin2 = this.pg.first(connectorLn, end2.CNew, p1); 
+		var pout1 = this.pg.second(connectorLn, end1.CNew, p2); 
+		var pout2 = this.pg.second(connectorLn, end2.CNew, p1); 
+		var cin1 = this.pg.circle(pin1, pout1); 
+		var cout1 = this.pg.circle(pout1, pin1); 
+		var cin2 = this.pg.circle(pin2, pout2); 
+		var cout2 = this.pg.circle(pout2, pin2); 
 
-		var c1 = this.pg.circle(p1,p2); 
-		var c2 = this.pg.circle(p2,p1); 
-		var ln12 = this.pg.line(p1,p2); 
-		var ce1 = end1.CNew; 
-		var ce2 = end2.CNew; 
-		var p1A = this.pg.first(ce1,c2, pc1);
-		var p1B = this.pg.second(ce1,ln12, p2);
-		var p1C = this.pg.second(ce1,c2, pc1);
-		var p2A = this.pg.first(ce2,c1, pc1);
-		var p2B = this.pg.second(ce2,ln12, p1);
-		var p2C = this.pg.second(ce2,c1, pc1);
-
-		var ln1 = this.pg.line(p1A, p2A); 
-		var ln1 = this.pg.line(p1B, p2B); 
-		var ln1 = this.pg.line(p1C, p2C); 
-
-
-/*		var t1A = this.pg.closestPointParam(ce1, p1A);
-		var t1B = this.pg.closestPointParam(ce1, p1B);
-		var t1C = this.pg.closestPointParam(ce1, p1C);
-		var t2A = this.pg.closestPointParam(ce2, p2A);
-		var t2B = this.pg.closestPointParam(ce2, p2B);
-		var t2C = this.pg.closestPointParam(ce2, p2C);
-
-		var a1AB = theP.arc(ce1, t1A, t1B); 
-		var a1BC = theP.arc(ce1, t1B, t1C); 
-		var a2AB = theP.arc(ce2, t2A, t2B); 
-		var a2BC = theP.arc(ce2, t2B, t2C); 
-
-		theP.loft(a1AB, a2AB, "#999"); 
-		theP.loft(a1BC, a2BC, "#bbb"); 
-*/	},
-	roundedSegment_test: function(t) { 
+		var prise1 = this.pg.first(cin1, cout1, pc1); 
+		var prise2 = this.pg.first(cin2, cout2, pc1); 
+		var pprp1 = this.pg.line(p1, prise1); 
+		var pprp2 = this.pg.line(p2, prise2); 
+		
+		var p1arcIn= this.pg.first(end1.CNew, pprp1, pc1); 
+		var p1arcOut = this.pg.second(end1.CNew, pprp1, pc1); 
+		var p2arcIn = this.pg.first(end2.CNew, pprp2, pc1); 
+		var p2arcOut = this.pg.second(end2.CNew, pprp2, pc1); 
+		
+		var lnIn = this.pg.line(p1arcIn, p2arcIn); 
+		var lnOut = this.pg.line(p1arcOut, p2arcOut); 
+		
+		// the P*A*'s can be used to loft square- or round-ended segments
+		var result = {
+				"P1":p1, "P2":p2, "C1":end1.CNew, "C2":end2.CNew,
+				"L1":lnIn, "L2":lnOut,
+				"P1A1":p1arcIn, "P1A2":pout1, "P1A3":p1arcOut, 
+				"P2A1":p2arcIn, "P2A2":pout2, "P2A3":p2arcOut
+			};
+		return result;
+	},
+	stadium_test: function(t) { 
 		var pA = this.pg.given(0.5,0.5); 
 		var p2 = this.pg.given(0.5,0.49); 
 		var p3 = this.pg.given(0.5,0.45);
 		var c1 = this.pg.circle(p3, p2); 
 		var pB = this.pg.addParametricPoint(c1,t); 
-
-		var p4 = this.pg.given(0.5, 0.2); 
+		var p4 = this.pg.given(0.5, 0.3); 
 		var p5 = this.pg.given(0.5, 0.1); 
 		var c2 = this.pg.circle(pA, p4); 
 		var pC = this.pg.addParametricPoint(c2,t*1.1); 
 		var c3 = this.pg.circle(pA, p5); 
 		var pD = this.pg.addParametricPoint(c3,t*0.9); 
-
-		var md = this.roundedSegment(pC, pD, pA, pB);
+		var md = this.stadium(pC, pD, pA, pB);
 	},
 
+
+	// add arcs that, when lofted, fill in the circle at p1 through p2
+	fillCircle: function(p1,p2) {
+		var c1 = this.pg.circle(p1,p2);
+		var pa = this.pg.parametric(c1, 0.001); // kinda cheating, but..
+		var pb = this.pg.parametric(c1, 0.25); 
+		var pc = this.pg.parametric(c1, 0.5); // alt is to need a 3rd point to fill a circle. 
+		var pd = this.pg.parametric(c1, 0.75); 
+		var a1 = this.pg.arc(c1, pa, pb, pc); 
+		var a2 = this.pg.arc(c1, pa, pd, pc); 	
+		var result = {
+				"C1":c1, "A1":a1, "A2":a2
+			};	
+		return result; 
+	},
+	fillCircle_test: function(t) { 
+		this.pg.setGroupColor(2, "#00f");
+		var p0 = this.pg.given(0.5,0.5); 
+		var p1 = this.pg.given(0.5,0.3333); 
+		var c1 = this.pg.circle(p0,p1); 			
+		var pA = this.pg.addParametricPoint(c1, t*1.0); 
+		var pB = this.pg.addParametricPoint(c1, t*1.333); 
+		var pC = this.pg.addParametricPoint(c1, t*2.0); 
+		var pD = this.pg.addParametricPoint(c1, t*2.666); 
+		var pE = this.pg.addParametricPoint(c1, t*3.0); 
+		var pF = this.pg.addParametricPoint(c1, t*4.0); 
+		var pG = this.pg.addParametricPoint(c1, t*4.0); 
+		var pH = this.pg.addParametricPoint(c1, t*5.333); 
+		var pI = this.pg.addParametricPoint(c1, t*5.0); 
+		var pJ = this.pg.addParametricPoint(c1, t*6.666); 
+		var pK = this.pg.addParametricPoint(c1, t*6.0); 
+		var pL = this.pg.addParametricPoint(c1, t*8.0); 
+		var pM = this.pg.addParametricPoint(c1, t*7.0); 
+		var pN = this.pg.addParametricPoint(c1, t*9.333); 
+		var md1 = this.fillCircle(pA, pB);
+		var md2 = this.fillCircle(pC, pD);
+		var md3 = this.fillCircle(pE, pF);
+		var md4 = this.fillCircle(pG, pH);
+		var md5 = this.fillCircle(pI, pJ);
+		var md6 = this.fillCircle(pK, pL);
+		var md7 = this.fillCircle(pM, pN);
+		this.pg.redraw();
+		this.pg.loft(md1.A1, md1.A2, "#222"); 
+		this.pg.loft(md2.A1, md2.A2, "#444"); 
+		this.pg.loft(md3.A1, md3.A2, "#666"); 
+		this.pg.loft(md4.A1, md4.A2, "#888"); 
+		this.pg.loft(md5.A1, md5.A2, "#aaa"); 
+		this.pg.loft(md6.A1, md6.A2, "#ccc"); 
+		this.pg.loft(md7.A1, md7.A2, "#eee"); 
+	},
 
 	// square lines: makes two segments that can be lofted to make a thick line
-	squareLine: function(p1,p2,p3) {
-
+	squareLine: function(p1,p2, pc1,pc2) {
+		var st = this.stadium(p1, p2, pc1, pc2); 
+		var seg1 = this.pg.segment(st.L1, st.P1A1, st.P2A1);
+		var seg2 = this.pg.segment(st.L2, st.P1A3, st.P2A3); 
+		var result = { "S1":seg1, "S2":seg2 };
+		return result; 
 	},
 	squareLine_test: function(t) { 
+		var pA = this.pg.given(0.5,0.5); 
+		var p2 = this.pg.given(0.5,0.49); 
+		var p3 = this.pg.given(0.5,0.45);
+		var c1 = this.pg.circle(p3, p2); 
+		var pB = this.pg.addParametricPoint(c1,t); 
+		var p4 = this.pg.given(0.5, 0.3); 
+		var p5 = this.pg.given(0.5, 0.1); 
+		var c2 = this.pg.circle(pA, p4); 
+		var pC = this.pg.addParametricPoint(c2,t*1.1); 
+		var c3 = this.pg.circle(pA, p5); 
+		var pD = this.pg.addParametricPoint(c3,t*0.9); 
+		var md = this.squareLine(pC, pD, pA, pB);
+		this.pg.redraw();
+		this.pg.loft(md.S1, md.S2, "#77F"); 
+	},
+	
+//				"P1":p1, "P2":p2, "C1":end1.CNew, "C2":end2.CNew,
+//				"L1":lnIn, "L2":lnOut,
+		//		"P1A1":p1arcIn, "P1A2":pout1, "P1A3":p1arcOut, 
+	//			"P2A1":p2arcIn, "P2A2":pout2, "P2A3":p2arcOut
+	roundLine: function(p1,p2, pc1,pc2) {
+		var st = this.stadium(p1, p2, pc1, pc2); 
+		var arc1 = this.pg.arc(st.C1, st.P1A1, st.P1A2, st.P1A3);
+		var arc2 = this.pg.arc(st.C2, st.P2A1, st.P2A2, st.P2A3);
+		var result = { "A1":arc1, "A2":arc2 };
+		return result; 
+	},
+	roundLine_test: function(t) { 
+		var pA = this.pg.given(0.5,0.5); 
+		var p2 = this.pg.given(0.5,0.49); 
+		var p3 = this.pg.given(0.5,0.45);
+		var c1 = this.pg.circle(p3, p2); 
+		var pB = this.pg.addParametricPoint(c1,t); 
+		var p4 = this.pg.given(0.5, 0.3); 
+		var p5 = this.pg.given(0.5, 0.1); 
+		var c2 = this.pg.circle(pA, p4); 
+		var pC = this.pg.addParametricPoint(c2,t*1.1); 
+		var c3 = this.pg.circle(pA, p5); 
+		var pD = this.pg.addParametricPoint(c3,t*0.9); 
+		var md = this.roundLine(pC, pD, pA, pB);
+		this.pg.redraw();
+		this.pg.loft(md.A1, md.A2, "#f77"); 
 	},
 	
 

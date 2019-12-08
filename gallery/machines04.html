@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <head>
 <title>workly.com/proportion</title>
-<link rel="stylesheet" href="styles.css">
-<script type="text/javascript" src="proportion.js"></script>
-<script type="text/javascript" src="prMachines.js"></script>
+<link rel="stylesheet" href="../styles.css">
+<script type="text/javascript" src="../proportion.js"></script>
+<script type="text/javascript" src="../prMachines.js"></script>
 <script type="text/javascript">
 	var theP, theMachines, t;  
 	function animator() {
 		t = t+0.005;
 		theP.clear();
-		theMachines.completeParallelogram_test(t); 
+		theMachines.tangents_test(t); 
 		theP.redraw();
 	}
 	function startAnimation() { 
@@ -26,16 +26,10 @@
 <div class="container">
   <div class="subCont">
     <div class="left">
-      <img src="gallery/machines.jpg" width="128" height="128"/>
+      <img src="machines.jpg" width="128" height="128"/>
       </div><!-- left -->
     <div class="right">
-    	This is the home page for "Proportion", a JavaScript library for geometry and drafting.     	
-    	<a href="gallery/index.html">Gallery</a> --
-    	<a href="http://github.com/bernardio5/proportion/">Github</a> -- 
-    	<a href="editor/index.html">Editor</a> 
-    	<br>
-    	Below is demonstrated a method of constructing a parallelogram from three points, 
-    	which happen to be moving about three circles. 
+    	Given a circle and a line, construct the two tangents of the circle that go through the line. 
       </div><!-- right -->
     <div class="clear"></div>
     </div><!-- subCont -->

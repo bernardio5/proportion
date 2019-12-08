@@ -1,0 +1,86 @@
+<!DOCTYPE html >
+<head>
+<title>Proportion/examples</title>
+<link rel="stylesheet" href="../styles.css">
+<script type="text/javascript" src="../proportion.js"></script>  
+<script type="text/javascript">
+	var frame = 0; 
+	var theP; 
+	
+    function testcode() { 		
+		// make a proportion "page" for drawing into
+		theP.clear(); 
+		theP.setCurrentGroup(2); 
+		// add four points that define two lines that cross. 
+		var p1 = theP.point(.25, .25); // three pts above
+		var p2 = theP.point(.5, .25); 
+		var p3 = theP.point(.75, .25); 
+		var p4 = theP.point(.25, .75); // three below
+		var p5 = theP.point(.5, .75); 
+		var p6 = theP.point(.75, .75); 
+			
+		// add three vertical lines
+		var ln1 = theP.line(p1, p4); 
+		var ln2 = theP.line(p2, p5); 
+		var ln3 = theP.line(p3, p6); 
+		
+		// add three vertical segments
+		theP.setCurrentGroup(1); 
+		var s1 = theP.segment(ln1, p1,p4); // two segments going top-to-bottom
+		var s2 = theP.segment(ln2, p2,p5); 
+		var s3 = theP.segment(ln3, p6,p3); // one going bottom to top.
+		
+		theP.redraw(); 
+		theP.loft(s1, s2, "#77f"); 		// this one ok
+		theP.loft(s2, s3, "#7f7"); 		// this one twisty
+
+		++frame;
+		if (frame>200) { frame = 0; }
+	}
+	
+	
+	function redraw() { 
+		var c_canvas = document.getElementById("sampleCanvas");
+		var theC = c_canvas.getContext("2d");
+		
+		theP = new prPage(theC);
+		theP.setGroupColor(2, "#ccc"); // grey
+ 
+		setInterval(testcode, 20); 
+	}
+
+
+
+</script>
+
+<body  onLoad="redraw();">
+<div class="container">
+  <div class="header">
+   	<div class="left"> <a href="index.html"><img src="../icon.jpg" alt="workly.com" /></a> 
+    	</div>
+    <div class="right">
+        Proportion: lofting errors from parameter direction
+        </div>
+        
+    <div class="clear"></div>
+    </div> <!-- header--> 
+       
+ <div class="subCont">
+    	<canvas id="sampleCanvas" width="640" height="640"></canvas>
+    <div class = "subCont">
+    	<div class="codeBox">
+       Here we have three lines, with one segment attached to each line. 
+       The the third segment, the one on the right, has a direction opposite the other two.<br> <br>
+       The blue rectangle is a correct loft, in which the parameter-0 points on the two segments
+       can be connected by a line that does not cross the parameter-1 points. <br><br>
+       The two green triangles are produced by the lofting of the second and third segments. 
+       Since the segments' direction do not match, you get a bow-tie pattern instead of a rectangle. 
+       <br><Br>
+       Please look at the source code of this page for more information.
+ 	</div></div> 
+        
+    
+</div><!-- container -->
+
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html >
+<head>
+<title>Proportion/examples</title>
+<link rel="stylesheet" href="../styles.css">
+<script type="text/javascript" src="../proportion.js"></script>  
+<script type="text/javascript">
+	var frame = 0; 
+	var theP; 
+	
+    
+    function animator() { 		
+		// make a proportion "page" for drawing into
+		theP.clear(); 
+ 
+		var p1 = theP.point(.2, .333); 
+		var p2 = theP.point(.8, .333); 
+		var p3 = theP.point(.5, .5);  
+		var p4 = theP.point(.5, .8); 
+		var p5 = theP.point(.2, .666); 
+		var p6 = theP.point(.8, .666); 
+		var c1 = theP.circle(p3,p4); 
+		
+		t = frame / 300
+		var pa = theP.parametric(c1, t*0.6);
+		var pb = theP.parametric(c1, t*0.5);
+		var pc = theP.parametric(c1, t*6.0);
+		var pd = theP.parametric(c1, t*5.0);
+		
+		var ln1 = theP.line(p1, pa); 
+		var ln2 = theP.line(p2, pb); 
+		var ln3 = theP.line(p5, pc); 
+		var ln4 = theP.line(p6, pd); 
+		
+		var s1 = theP.segment(ln1, p1,pa); 
+		var s2 = theP.segment(ln2, p2,pb); 
+		var s3 = theP.segment(ln3, p5,pc); 
+		var s4 = theP.segment(ln4, p6,pd); 
+				
+		theP.redraw(); 
+		theP.loft(s3, s4, "#f77"); 
+		theP.loft(s1, s2, "#77f"); 
+		++frame;
+	
+	}
+	
+	
+	function redraw() { 
+		var c_canvas = document.getElementById("sampleCanvas");
+		var theC = c_canvas.getContext("2d");
+		
+		theP = new prPage(theC);
+		
+		setInterval(animator, 20); 
+	}
+
+
+
+</script>
+
+<body  onLoad="redraw();">
+<div class="container">
+  <div class="header">
+   	<div class="left"> <a href="index.html"><img src="../icon.jpg" alt="workly.com" /></a> 
+    	</div>
+    <div class="right">
+        Proportion: Lofting line segments. 
+        </div>
+        
+    <div class="clear"></div>
+    </div> <!-- header--> 
+       
+ <div class="subCont">
+    	<canvas id="sampleCanvas" width="640" height="640"></canvas>
+    <div class = "subCont">
+    	<div class="codeBox">
+	To color in a section of a construction, you "loft". Here, two line segments are defined
+	using four points on two lines. The "loft" command fills in the area between the two segments
+	with the color specified. This can result in a convex 4-sided figure, but if the segments 
+	cross or pass close to each other, other shapes can be made. 
+              <br>
+       <br>
+       Please look at the source code of this page for more information.
+ 	</div></div> 
+        
+    
+</div><!-- container -->
+
+</body>
+</html>

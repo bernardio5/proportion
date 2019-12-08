@@ -101,7 +101,7 @@ prBase.prototype.ec = function(label) { // "echo"
 }
 
 ///////////// Mark-rendering helper functions
-prBase.prototype.sX = function(u) { // segment X coord for parameter u
+ prBase.prototype.sX = function(u) { // segment X coord for parameter u
 	return this.x + (this.x2*u);  
 }
 
@@ -109,14 +109,13 @@ prBase.prototype.sY = function(u) { // segment y coord
 	return this.y + (this.y2*u);  
 }
 
-
+// note that 2pi is scaled in; u is expected 0<u<1
 prBase.prototype.aX = function(u) { // arc X coord for parameter u
-	return this.x + (this.r*Math.cos(PR_2P * (this.p0 + (this.dp*u))));  
+	return this.x + (this.r*Math.cos(PR_2P *(this.p0 + (this.dp * u))));  
 }
 
 prBase.prototype.aY = function(u) { // arc Y
-	return this.y + (this.r*Math.sin(PR_2P*(this.p0 + (this.dp*u))));  
-
+	return this.y + (this.r*Math.sin(PR_2P *(this.p0 + (this.dp * u))));  
 }
 
 
@@ -145,7 +144,7 @@ prBase.prototype.tr = function(context) {
 			p1x = this.aX(0.0); 
 			p1y = this.aY(0.0);
 			context.moveTo(p1x, p1y);
-			if (this.dp>0.0) { plim = 1.0; }
+			if (this.dp>0.0) { plim = 1.0; } // FIXME; no need to swap, do better pct
 			else { plim = -1.0; }
 			pct = (plim / 50.0);
 			p = 0.0;
@@ -384,8 +383,8 @@ prBase.prototype.sapS = function (lineIn, t1in, t2in) {
 		this.t = PR_S; 		// then tweak. 
 		this.x = nx1; 
 		this.y = ny1; 
-		this.x2 = nx2; 
-		this.y2 = ny2; 
+		this.x2 = nx2-nx1; 
+		this.y2 = ny2-ny1; 
 	} else {
 		this.t = PR_N; // if the points coincide, no mark.
 	}
@@ -415,19 +414,28 @@ prBase.prototype.sapA = function (circleIn, t1in, t2in, t3in) {
 	if (t2<0.0) { t2 += 1.0; }
 	var t3 = t3in - Math.floor(t3in);
 	if (t3<0.0) { t3 += 1.0; }
-	// fail if there are not 3 different points 
-	if (((t1-t2)*(t1-t2))<PR_E) { this.t = PR_N; }
-	if (((t1-t3)*(t1-t3))<PR_E) { this.t = PR_N; }
-	if (((t3-t2)*(t3-t2))<PR_E) { this.t = PR_N; }
+	// fail if there are not 2 different points
+	var s1 = t3-t1; 
+	var s2 = t3-t2;
+	if ((s1*s1<PR_E)&&(s2*s2<PR_E)) { this.t = PR_N; }
 	if (this.t!=PR_N) {
 		this.cp(circleIn);  // start out as a a circle
 		this.t=PR_A; 
-	
 		// preserve radius & set 0-angle to be through t1
 		this.x2 = this.r * Math.cos(t1 * PR_2P);
 		this.y2 = this.r * Math.sin(t1 * PR_2P);
-
-		// recast t2 and t3 st t1==0 
+	
+		if (((t1<t2)&&(t2<t3)) || ((t1>t2)&&(t2>t3))) { // no 0 crossing
+			this.p0 = t1; this.dp = t3-t1;
+		} else {
+			if (t1<t3) { // cross 0 going down
+				this.p0 = t1; this.dp = (t3-1.0) - t1;
+			} else { // cross 0 going up
+				this.p0 = t1-1.0; this.dp = t3 - (t1-1.0); 
+				// could add 1 to dp, but that makes a second test for aX() aY()
+			}
+		}	
+		/* recast t2 and t3 st t1==0 
 		t2 = t2 - t1; 
 		if (t2<0.0) { t2 += 1.0; }
 		t3 = t3 - t1;
@@ -440,7 +448,7 @@ prBase.prototype.sapA = function (circleIn, t1in, t2in, t3in) {
 			} else {
 				this.dp = t3-1.0; 
 			}
-		}
+		}*/
 	}
 }
 
@@ -456,7 +464,7 @@ prBase.prototype.saA = function (circleIn, p1,p2,p3) {
 	if (t2<0.0) { this.t = PR_N; }
 	if (t3<0.0) { this.t = PR_N; }
 	if (this.t!=PR_N) {
-		this.sapA(circleIn, t1/PR_2P, t2/PR_2P, t3/PR_2P); 
+		this.sapA(circleIn, t1/PR_2P, t2/PR_2P, t3/PR_2P); // note 2pi factored out
 	}
 }
 
@@ -894,9 +902,7 @@ prPage.prototype.redraw = function() {
 			}
 			if ((ob.g===i)&&(ob.t==PR_F)) {
 				m1 = this.objs[j].x; 
-				m2 = this.objs[j].y; 
-
-				
+				m2 = this.objs[j].y;
 			}
 		}
 		this.cx.stroke(); 
@@ -1127,7 +1133,7 @@ prPage.prototype.segment = function(ob, p1, p2) {
 	if (this.isAPoint(p2)==0) { console.log("addSegment: argument 3 is not a point"); res=0; }
 	if (res===this.objCount) {  // 0<ob<objCount
 		this.objs[res] = new prBase;
-		this.objs[res].saS(this.objs[ob], p1, p2);
+		this.objs[res].saS(this.objs[ob], this.objs[p1], this.objs[p2]);
 		this.objs[res].g = this.currentGroup;
 		++this.objCount;
 	}
@@ -1265,65 +1271,127 @@ prPage.prototype.getClosestPointParameter = prPage.prototype.closest;
 
 // given two marks, loft between them
 // the other fucntions modify the page; this one just draws.
-prPage.prototype.loft = function(m1in, m2in, color) {
-	var m1, m2, dt1, dt2, bt1, bt2, t1, t2, dt, sc; 
-	m1 = new prBase; 
-	m2 = new prBase; 
+prPage.prototype.loft = function(m1in, m2in, color) {	 
+	var flag = this.objCount;
+	if (this.isAnObject(m1in)==0) { console.log("loft: argument 1 is not a object"); flag=0; }
+	if (this.isAnObject(m2in)==0) { console.log("loft: argument 2 is not a object"); flag=0; }
+	// can't make a circle out of coincident points, but sAC checks that.
+	if (flag===this.objCount) {
+		var m1 = this.objs[m1in];
+		var m2 = this.objs[m2in];
+		
+		if (m1.t==PR_P && m2.t==PR_S) {
+			this.cx.fillStyle = color;	
+			this.cx.beginPath();
+			this.cx.moveTo(m1.x, m1.y);
+			this.cx.lineTo(m2.x, m2.y);
+			this.cx.lineTo(m2.x2+m2.x, m2.y2+m2.y);
+			this.cx.closePath();
+			this.cx.fill();
+		} 
+//prBase.prototype.aX = function(u) { // arc X coord for parameter u
+	//return this.x + (this.r*Math.cos(PR_2P * (this.p0 + (this.dp*u))));  
+		if (m1.t==PR_P && m2.t==PR_A) {
+			this.cx.fillStyle = color;	
+			this.cx.beginPath();
+			this.cx.moveTo(m1.x, m1.y);
+			var dt = 1.0 / m1.r;
+			if (dt>0.125) dt = 0.125;
+			for (var t=0.0; t<1.0; t=t+dt) { 
+				var px = m2.aX(t); 
+				var py = m2.aX(t); 
+				this.cx.lineTo(px,py);
+			}
+			this.cx.closePath();
+			this.cx.fill();
+		} 
+		if (m1.t==PR_S && m2.t==PR_P) {
+			this.cx.fillStyle = color;	
+			this.cx.beginPath();
+			this.cx.moveTo(m2.x, m2.y);
+			this.cx.lineTo(m1.x, m1.y);
+			this.cx.lineTo(m1.x2+m1.x, m1.y2+m1.y);
+			this.cx.closePath();
+			this.cx.fill();
+		} 
+		if (m1.t==PR_A && m2.t==PR_P) {
+			this.cx.fillStyle = color;	
+			this.cx.beginPath();
+			this.cx.moveTo(m2.x, m2.y);
+			var dt = 1.0 / m1.r;
+			if (dt>0.125) dt = 0.125;
+			for (var t=0.0; t<1.0; t=t+dt) { 
+				var px = m1.aX(t); 
+				var py = m1.aX(t); 
+				this.cx.lineTo(px,py);
+			}
+			this.cx.closePath();
+			this.cx.fill();
+		}
+		if (m1.t==PR_S && m2.t==PR_S) {
+			this.cx.fillStyle = color;	
+			this.cx.beginPath();
+			this.cx.moveTo(m1.x, m1.y);
+			this.cx.lineTo(m2.x, m2.y);
+			this.cx.lineTo(m2.x2+m2.x, m2.y2+m2.y);
+			this.cx.lineTo(m1.x2+m1.x, m1.y2+m1.y);
+			this.cx.closePath();
+			this.cx.fill();
+		} 
+		if (m1.t==PR_S && m2.t==PR_A) {
+			this.cx.fillStyle = color;	
+			this.cx.beginPath();
+			this.cx.moveTo(m1.x, m1.y);
+			var dt = 1.0 / m1.r;
+			if (dt>0.125) dt = 0.125;
+			for (var t=0.0; t<1.0; t=t+dt) { 
+				var px = m2.aX(t); 
+				var py = m2.aY(t); 
+				this.cx.lineTo(px,py);
+			}
+			this.cx.moveTo(m1.x2, m1.y2);
+			this.cx.closePath();
+			this.cx.fill();
+		} 
+		if (m1.t==PR_A && m2.t==PR_S) {
+			this.cx.fillStyle = color;	
+			this.cx.beginPath();
+			this.cx.moveTo(m2.x, m2.y);
+			var dt = 1.0 / m1.r;
+			if (dt>0.125) dt = 0.125;
+			for (var t=0.0; t<1.0; t=t+dt) { 
+				var px = m1.aX(t); 
+				var py = m1.aY(t); 
+				this.cx.lineTo(px,py);
+			}
+			this.cx.moveTo(m2.x2+m2.x, m2.y2+m2.y);
+			this.cx.closePath();
+			this.cx.fill();
+		} 
+		if (m1.t==PR_A && m2.t==PR_A) {
+			this.cx.fillStyle = color;	
+			var dt = 1.0 / m1.r;
+			if (dt>0.125) dt = 0.125;
+			for (var t=0.0; t<1.0-dt; t=t+dt) { 
+				this.cx.beginPath();
+				var px11 = m1.aX(t); 
+				var py11 = m1.aY(t); 
+				var px12 = m1.aX(t+dt+0.01); 
+				var py12 = m1.aY(t+dt+0.01); 
+				var px21 = m2.aX(t); 
+				var py21 = m2.aY(t); 
+				var px22 = m2.aX(t+dt+0.01); 
+				var py22 = m2.aY(t+dt+0.01); 
+				this.cx.moveTo(px11,py11);
+				this.cx.lineTo(px21,py21);
+				this.cx.lineTo(px22,py22);
+				this.cx.lineTo(px12,py12);
+				this.cx.closePath();
+				this.cx.fill();
+			}
+		} 
 
-	this.cx.fillStyle = color;	
-	m1.cp(this.objs[m1in]); 
-	m2.cp(this.objs[m2in]); 
-	
-	sc = m1.sc;
-	if (m2.sc>m1.sc) { sc= m2.sc; }
-	dt = 1.0/sc;
-	dt1 = (m1.t2 - m1.t1)/sc; 
-	dt2 = (m2.t2 - m2.t1)/sc; 
-	bt1 = dt1*1.05; 
-	bt2 = dt2*1.05; 
-	
-	for (n=0; n<sc; ++n) {
-		t1 = m1.t1 +(n * dt1); 
-		t2 = m2.t1 +(n * dt2); 
-		
-		this.cx.beginPath(); 
-		
-		if (m1.t == PR_S) { 
-			this.cx.moveTo(m1.sX(t1), m1.sY(t1));
-		} else {
-			this.cx.moveTo(m1.aX(t1), m1.aY(t1));
-		}
-		if (n<(sc-1)) { 
-			if (m2.t == PR_S) { 
-				this.cx.lineTo(m2.sX(t2), 		m2.sY(t2));
-				this.cx.lineTo(m2.sX(t2+bt2), 	m2.sY(t2+bt2));
-			} else {
-				this.cx.lineTo(m2.aX(t2), 		m2.aY(t2));
-				this.cx.lineTo(m2.aX(t2+bt2), 	m2.aY(t2+bt2));
-			}
-			
-			if (m1.t == PR_S) { 
-				this.cx.lineTo(m1.sX(t1+bt1), 	m1.sY(t1+bt1));
-			} else {
-				this.cx.lineTo(m1.aX(t1+bt1), 	m1.aY(t1+bt1));
-			}
-		} else { 
-			if (m2.t == PR_S) { 
-				this.cx.lineTo(m2.sX(t2), 		m2.sY(t2));
-				this.cx.lineTo(m2.sX(t2+dt2), 	m2.sY(t2+dt2));
-			} else {
-				this.cx.lineTo(m2.aX(t2), 		m2.aY(t2));
-				this.cx.lineTo(m2.aX(t2+dt2), 	m2.aY(t2+dt2));
-			}
-			
-			if (m1.t == PR_S) { 
-				this.cx.lineTo(m1.sX(t1+dt1), 	m1.sY(t1+dt1));
-			} else {
-				this.cx.lineTo(m1.aX(t1+dt1), 	m1.aY(t1+dt1));
-			}
-		}
-		this.cx.fill(); 
-	}
+	}	
 }
 
 
