@@ -16,14 +16,14 @@
 		
 		// add two points; the function "addGivenPoint" returns an integer,
 		//   which you will use with other functions to refer to the points
-		var p1 = theP.addGivenPoint(.5, .5);   // middle
-		var p2 = theP.addGivenPoint(.5, .2);   // upper right
+		var p1 = theP.point(.5, .5);   // middle
+		var p2 = theP.point(.5, .2);   // upper right
 		
 		// add two lines; note that lines are specified by giving two points. 
-		var ln1 = theP.addLine(p1, p2); 
+		var ln1 = theP.line(p1, p2); 
 		
 		// add a circle by giving the center point and any point on the circumference. 
-		var c1 = theP.addCircle(p2, p1); 
+		var c1 = theP.circle(p2, p1); 
 		
 		// draw the figure
 		theP.redraw(); 
@@ -32,7 +32,7 @@
 
 </head>
 <body onLoad="redraw();" onRedraw="redraw();">
-<canvas id="sampleCanvas" width="100%" height="100%"></canvas>
+<canvas id="sampleCanvas" width="300px" height="300px"></canvas>
        <br>
        <br>
        Please look at the source code of this page for more information.
