@@ -4,7 +4,7 @@ I like geometric constructions. Drafting also is cool.
 Tile patterns: cool. 
 
 Cloning the repo and loading index.html in a browser allows viewing of
-all content.
+all content; I also have it online at workly.com/proportion.
 
 The code in proportion.js is heavily commented. 
 The HTML pages in the "examples" directory are a tutorial.
